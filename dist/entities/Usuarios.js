@@ -24,36 +24,55 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.__esModule = true;
-exports.Users = void 0;
+exports.Usuarios = void 0;
 var typeorm_1 = require("typeorm");
-var Users = /** @class */ (function (_super) {
-    __extends(Users, _super);
-    function Users() {
+var Publicaciones_1 = require("./Publicaciones");
+var Favoritos_1 = require("./Favoritos");
+var Mensajes_1 = require("./Mensajes");
+var Usuarios = /** @class */ (function (_super) {
+    __extends(Usuarios, _super);
+    function Usuarios() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], Users.prototype, "id");
+        typeorm_1.Column(),
+        __metadata("design:type", String)
+    ], Usuarios.prototype, "nombre");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Users.prototype, "first_name");
+    ], Usuarios.prototype, "apellido");
+    __decorate([
+        typeorm_1.Column(),
+        __metadata("design:type", Date)
+    ], Usuarios.prototype, "fechaNacimiento");
+    __decorate([
+        typeorm_1.Column({ primary: true }),
+        __metadata("design:type", String)
+    ], Usuarios.prototype, "email");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Users.prototype, "last_name");
-    __decorate([
-        typeorm_1.Column({ unique: true }),
-        __metadata("design:type", String)
-    ], Users.prototype, "email");
+    ], Usuarios.prototype, "password");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Users.prototype, "password");
-    Users = __decorate([
+    ], Usuarios.prototype, "tipoUsuario");
+    __decorate([
+        typeorm_1.OneToMany(function () { return Publicaciones_1.Publicaciones; }, function (publicacion) { return publicacion.usuario; }),
+        __metadata("design:type", Array)
+    ], Usuarios.prototype, "publicacion");
+    __decorate([
+        typeorm_1.OneToMany(function () { return Favoritos_1.Favoritos; }, function (favoritos) { return favoritos.id; }),
+        __metadata("design:type", Favoritos_1.Favoritos)
+    ], Usuarios.prototype, "favoritos");
+    __decorate([
+        typeorm_1.OneToMany(function () { return Mensajes_1.Mensajes; }, function (mensajes) { return mensajes.id; }),
+        __metadata("design:type", Mensajes_1.Mensajes)
+    ], Usuarios.prototype, "mensajes");
+    Usuarios = __decorate([
         typeorm_1.Entity()
-    ], Users);
-    return Users;
+    ], Usuarios);
+    return Usuarios;
 }(typeorm_1.BaseEntity));
-exports.Users = Users;
+exports.Usuarios = Usuarios;

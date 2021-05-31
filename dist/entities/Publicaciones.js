@@ -24,42 +24,46 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.__esModule = true;
-exports.User = void 0;
+exports.Publicaciones = void 0;
 var typeorm_1 = require("typeorm");
-var Planet_1 = require("./Planet");
-var User = /** @class */ (function (_super) {
-    __extends(User, _super);
-    function User() {
+var Usuarios_1 = require("./Usuarios");
+var Favoritos_1 = require("./Favoritos");
+var Publicaciones = /** @class */ (function (_super) {
+    __extends(Publicaciones, _super);
+    function Publicaciones() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], User.prototype, "id");
+    ], Publicaciones.prototype, "id");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], User.prototype, "first_name");
+    ], Publicaciones.prototype, "titulo");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], User.prototype, "last_name");
-    __decorate([
-        typeorm_1.Column({ unique: true }),
-        __metadata("design:type", String)
-    ], User.prototype, "email");
+    ], Publicaciones.prototype, "descripcion");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], User.prototype, "password");
+    ], Publicaciones.prototype, "url");
     __decorate([
-        typeorm_1.ManyToMany(function () { return Planet_1.Planet; }),
-        typeorm_1.JoinTable(),
+        typeorm_1.Column(),
+        __metadata("design:type", String)
+    ], Publicaciones.prototype, "categoria");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuario) { return usuario.email; }, { primary: true }),
+        __metadata("design:type", Usuarios_1.Usuarios)
+    ], Publicaciones.prototype, "usuario");
+    __decorate([
+        typeorm_1.OneToMany(function () { return Favoritos_1.Favoritos; }, function (favoritos) { return favoritos.id; }),
         __metadata("design:type", Array)
-    ], User.prototype, "planets");
-    User = __decorate([
+    ], Publicaciones.prototype, "favoritos");
+    Publicaciones = __decorate([
         typeorm_1.Entity()
-    ], User);
-    return User;
+    ], Publicaciones);
+    return Publicaciones;
 }(typeorm_1.BaseEntity));
-exports.User = User;
+exports.Publicaciones = Publicaciones;

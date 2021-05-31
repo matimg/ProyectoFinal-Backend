@@ -8,9 +8,8 @@ exports.__esModule = true;
  * POST /token can be the endpoint to "log in" (generate a token)
  */
 var express_1 = require("express");
-var utils_1 = require("./utils");
-var actions_1 = require("./actions");
+// import { createUser } from './actions';
 var router = express_1.Router();
 // signup route, creates a new user in the DB
-router.post('/user', utils_1.safe(actions_1.createUser));
+// router.post('/user', safe(createUser));
 exports["default"] = router;

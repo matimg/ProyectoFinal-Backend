@@ -24,33 +24,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.__esModule = true;
-exports.Planet = void 0;
+exports.Mensajes = void 0;
 var typeorm_1 = require("typeorm");
-var Users_1 = require("./Users");
-var Planet = /** @class */ (function (_super) {
-    __extends(Planet, _super);
-    function Planet() {
+var Usuarios_1 = require("./Usuarios");
+var Mensajes = /** @class */ (function (_super) {
+    __extends(Mensajes, _super);
+    function Mensajes() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], Planet.prototype, "id");
+    ], Mensajes.prototype, "id");
     __decorate([
-        typeorm_1.Column({ unique: true }),
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.email; }, { primary: true }),
+        __metadata("design:type", Usuarios_1.Usuarios)
+    ], Mensajes.prototype, "usuarioEmisor");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.email; }, { primary: true }),
+        __metadata("design:type", Usuarios_1.Usuarios)
+    ], Mensajes.prototype, "usuarioReceptor");
+    __decorate([
+        typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Planet.prototype, "name");
+    ], Mensajes.prototype, "asunto");
     __decorate([
-        typeorm_1.Column({ nullable: true }),
+        typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Planet.prototype, "picture_url");
-    __decorate([
-        typeorm_1.ManyToMany(function () { return Users_1.Users; }, function (user) { return user.planets; }),
-        __metadata("design:type", Array)
-    ], Planet.prototype, "users");
-    Planet = __decorate([
+    ], Mensajes.prototype, "mensaje");
+    Mensajes = __decorate([
         typeorm_1.Entity()
-    ], Planet);
-    return Planet;
+    ], Mensajes);
+    return Mensajes;
 }(typeorm_1.BaseEntity));
-exports.Planet = Planet;
+exports.Mensajes = Mensajes;
