@@ -11,13 +11,26 @@
  * 
  */
 
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { safe } from './utils';
+import jwt from 'jsonwebtoken'
 import * as actions from './actions';
 
 // declare a new router to include all the endpoints
 const router = Router();
 
-router.get('/user', safe(actions.getUsers));
+//middleware de verificación
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+    //headers con el token
+    const token = req.header('Authorization');
+    if (!token) return res.status(400).json({ 'message': 'ACCESS DENIED' });
+
+    const decoded = jwt.verify(token as string, process.env.JWT_KEY as string);
+    req.user = decoded;
+
+    next();
+}
+
+// router.get('/user', safe(actions.getUsers));
 
 export default router;
