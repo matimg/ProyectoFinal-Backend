@@ -11,9 +11,9 @@ export class Favoritos extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Usuarios, usuarios => usuarios.email, {primary: true})
+    @ManyToOne(() => Usuarios, usuarios => usuarios.id, { nullable: false })
     usuario: Usuarios[];
 
-    @ManyToOne(() => Publicaciones, publicacionesId => publicacionesId.id)
+    @ManyToOne(() => Publicaciones, publicaciones => publicaciones.id)
     publicaciones: Publicaciones[];
 }

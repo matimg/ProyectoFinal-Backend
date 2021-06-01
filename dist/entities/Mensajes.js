@@ -37,11 +37,11 @@ var Mensajes = /** @class */ (function (_super) {
         __metadata("design:type", Number)
     ], Mensajes.prototype, "id");
     __decorate([
-        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.email; }, { primary: true }),
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.id; }, { nullable: false }),
         __metadata("design:type", Usuarios_1.Usuarios)
     ], Mensajes.prototype, "usuarioEmisor");
     __decorate([
-        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.email; }, { primary: true }),
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.id; }, { nullable: false }),
         __metadata("design:type", Usuarios_1.Usuarios)
     ], Mensajes.prototype, "usuarioReceptor");
     __decorate([

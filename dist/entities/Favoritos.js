@@ -38,11 +38,11 @@ var Favoritos = /** @class */ (function (_super) {
         __metadata("design:type", Number)
     ], Favoritos.prototype, "id");
     __decorate([
-        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.email; }, { primary: true }),
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.id; }, { nullable: false }),
         __metadata("design:type", Array)
     ], Favoritos.prototype, "usuario");
     __decorate([
-        typeorm_1.ManyToOne(function () { return Publicaciones_1.Publicaciones; }, function (publicacionesId) { return publicacionesId.id; }),
+        typeorm_1.ManyToOne(function () { return Publicaciones_1.Publicaciones; }, function (publicaciones) { return publicaciones.id; }),
         __metadata("design:type", Array)
     ], Favoritos.prototype, "publicaciones");
     Favoritos = __decorate([

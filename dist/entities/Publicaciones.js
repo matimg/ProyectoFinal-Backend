@@ -54,7 +54,7 @@ var Publicaciones = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], Publicaciones.prototype, "categoria");
     __decorate([
-        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuario) { return usuario.email; }, { primary: true }),
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuario) { return usuario.id; }, { nullable: false }),
         __metadata("design:type", Usuarios_1.Usuarios)
     ], Publicaciones.prototype, "usuario");
     __decorate([

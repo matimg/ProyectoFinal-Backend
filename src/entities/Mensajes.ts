@@ -11,10 +11,10 @@ export class Mensajes extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Usuarios, usuarios => usuarios.email, {primary: true})
+    @ManyToOne(() => Usuarios, usuarios => usuarios.id, { nullable: false })
     usuarioEmisor: Usuarios;
     
-    @ManyToOne(() => Usuarios, usuarios => usuarios.email, {primary: true})
+    @ManyToOne(() => Usuarios, usuarios => usuarios.id, { nullable: false })
     usuarioReceptor: Usuarios;
 
     @Column()

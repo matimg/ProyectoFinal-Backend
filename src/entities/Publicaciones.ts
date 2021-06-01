@@ -23,7 +23,7 @@ export class Publicaciones extends BaseEntity {
     @Column()
     categoria: string;
 
-    @ManyToOne(() => Usuarios, usuario => usuario.email, { primary: true })
+    @ManyToOne(() => Usuarios, usuario => usuario.id, { nullable: false })
     usuario: Usuarios;
 
     @OneToMany(() => Favoritos, favoritos => favoritos.id)

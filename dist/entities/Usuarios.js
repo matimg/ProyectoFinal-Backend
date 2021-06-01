@@ -35,6 +35,10 @@ var Usuarios = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
+        typeorm_1.PrimaryGeneratedColumn(),
+        __metadata("design:type", Number)
+    ], Usuarios.prototype, "id");
+    __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
     ], Usuarios.prototype, "nombre");
@@ -47,7 +51,7 @@ var Usuarios = /** @class */ (function (_super) {
         __metadata("design:type", Date)
     ], Usuarios.prototype, "fechaNacimiento");
     __decorate([
-        typeorm_1.Column({ primary: true }),
+        typeorm_1.Column({ unique: true, nullable: false }),
         __metadata("design:type", String)
     ], Usuarios.prototype, "email");
     __decorate([

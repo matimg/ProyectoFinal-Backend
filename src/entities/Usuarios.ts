@@ -9,6 +9,10 @@ import { Mensajes } from './Mensajes';
 
 @Entity()
 export class Usuarios extends BaseEntity {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
     @Column()
     nombre: string;
 
@@ -18,7 +22,7 @@ export class Usuarios extends BaseEntity {
     @Column()
     fechaNacimiento: Date;
 
-    @Column({ primary: true })
+    @Column({ unique: true, nullable: false })
     email: string;
 
     @Column()
