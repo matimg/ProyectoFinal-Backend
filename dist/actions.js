@@ -39,33 +39,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.login = void 0;
+exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-/*export const createUser = async (req: Request, res: Response): Promise<Response> => {
-
-    // important validations to avoid ambiguos errors, the client needs to understand what went wrong
-    if (!req.body.first_name) throw new Exception("Please provide a first_name")
-    if (!req.body.last_name) throw new Exception("Please provide a last_name")
-    if (!req.body.email) throw new Exception("Please provide an email")
-    if (!req.body.password) throw new Exception("Please provide a password")
-
-    const userRepo = getRepository(Users)
-    // fetch for any user with this email
-    const user = await userRepo.findOne({ where: { email: req.body.email } })
-    if (user) throw new Exception("Users already exists with this email")
-
-    const newUser = getRepository(Users).create(req.body);  //Creo un usuario
-    const results = await getRepository(Users).save(newUser); //Grabo el nuevo usuario
-    return res.json(results);
-}
-
-export const getUsers = async (req: Request, res: Response): Promise<Response> => {
-    const users = await getRepository(Users).find();
-    return res.json(users);
-}*/
 //LOGIN- DEVUELVE UN TOKEN DE AUTORIZACION AL USUARIO
 var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var usuariosRepo, USUARIO, token;
@@ -90,3 +68,55 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
     });
 }); };
 exports.login = login;
+var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var userRepo, usuario, USUARIO, nuevoUsuario, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                // important validations to avoid ambiguos errors, the client needs to understand what went wrong
+                if (!req.body.nombre)
+                    throw new utils_1.Exception("Por favor ingrese su nombre");
+                if (!req.body.apellido)
+                    throw new utils_1.Exception("Por favor ingrese su apellido");
+                if (!req.body.fechaNacimiento)
+                    throw new utils_1.Exception("Por favor ingrese su fechaNacimiento"); // Preguntar si se valida que es mayor de edad en el front o en el back
+                if (!req.body.email)
+                    throw new utils_1.Exception("Por favor ingrese su email");
+                if (!req.body.password)
+                    throw new utils_1.Exception("Por favor ingrese su contraseña");
+                if (!req.body.tipoUsuario)
+                    throw new utils_1.Exception("Por favor ingrese su tipoUsuario");
+                userRepo = typeorm_1.getRepository(Usuarios_1.Usuarios);
+                return [4 /*yield*/, userRepo.findOne({ where: { email: req.body.email } })];
+            case 1:
+                usuario = _a.sent();
+                if (usuario)
+                    throw new utils_1.Exception("Este usuario ya existe");
+                USUARIO = new Usuarios_1.Usuarios();
+                USUARIO.nombre = req.body.nombre;
+                USUARIO.apellido = req.body.apellido;
+                USUARIO.fechaNacimiento = req.body.fechaNacimiento;
+                USUARIO.email = req.body.email;
+                USUARIO.password = req.body.password;
+                USUARIO.tipoUsuario = req.body.tipoUsuario;
+                nuevoUsuario = typeorm_1.getRepository(Usuarios_1.Usuarios).create(USUARIO);
+                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(nuevoUsuario)];
+            case 2:
+                results = _a.sent();
+                return [2 /*return*/, res.json(results)];
+        }
+    });
+}); };
+exports.crearUsuario = crearUsuario;
+var getUSuarios = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).find()];
+            case 1:
+                usuario = _a.sent();
+                return [2 /*return*/, res.json(usuario)];
+        }
+    });
+}); };
+exports.getUSuarios = getUSuarios;
