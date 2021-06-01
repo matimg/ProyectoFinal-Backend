@@ -24,36 +24,46 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.__esModule = true;
-exports.Users = void 0;
+exports.Publicaciones = void 0;
 var typeorm_1 = require("typeorm");
-var Users = /** @class */ (function (_super) {
-    __extends(Users, _super);
-    function Users() {
+var Usuarios_1 = require("./Usuarios");
+var Favoritos_1 = require("./Favoritos");
+var Publicaciones = /** @class */ (function (_super) {
+    __extends(Publicaciones, _super);
+    function Publicaciones() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], Users.prototype, "id");
+    ], Publicaciones.prototype, "id");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Users.prototype, "first_name");
+    ], Publicaciones.prototype, "titulo");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Users.prototype, "last_name");
-    __decorate([
-        typeorm_1.Column({ unique: true }),
-        __metadata("design:type", String)
-    ], Users.prototype, "email");
+    ], Publicaciones.prototype, "descripcion");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Users.prototype, "password");
-    Users = __decorate([
+    ], Publicaciones.prototype, "url");
+    __decorate([
+        typeorm_1.Column(),
+        __metadata("design:type", String)
+    ], Publicaciones.prototype, "categoria");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuario) { return usuario.id; }, { nullable: false }),
+        __metadata("design:type", Usuarios_1.Usuarios)
+    ], Publicaciones.prototype, "usuario");
+    __decorate([
+        typeorm_1.OneToMany(function () { return Favoritos_1.Favoritos; }, function (favoritos) { return favoritos.id; }),
+        __metadata("design:type", Array)
+    ], Publicaciones.prototype, "favoritos");
+    Publicaciones = __decorate([
         typeorm_1.Entity()
-    ], Users);
-    return Users;
+    ], Publicaciones);
+    return Publicaciones;
 }(typeorm_1.BaseEntity));
-exports.Users = Users;
+exports.Publicaciones = Publicaciones;

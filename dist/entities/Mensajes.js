@@ -24,42 +24,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.__esModule = true;
-exports.User = void 0;
+exports.Mensajes = void 0;
 var typeorm_1 = require("typeorm");
-var Planet_1 = require("./Planet");
-var User = /** @class */ (function (_super) {
-    __extends(User, _super);
-    function User() {
+var Usuarios_1 = require("./Usuarios");
+var Mensajes = /** @class */ (function (_super) {
+    __extends(Mensajes, _super);
+    function Mensajes() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], User.prototype, "id");
+    ], Mensajes.prototype, "id");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.id; }, { nullable: false }),
+        __metadata("design:type", Usuarios_1.Usuarios)
+    ], Mensajes.prototype, "usuarioEmisor");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.id; }, { nullable: false }),
+        __metadata("design:type", Usuarios_1.Usuarios)
+    ], Mensajes.prototype, "usuarioReceptor");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], User.prototype, "first_name");
+    ], Mensajes.prototype, "asunto");
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], User.prototype, "last_name");
-    __decorate([
-        typeorm_1.Column({ unique: true }),
-        __metadata("design:type", String)
-    ], User.prototype, "email");
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", String)
-    ], User.prototype, "password");
-    __decorate([
-        typeorm_1.ManyToMany(function () { return Planet_1.Planet; }),
-        typeorm_1.JoinTable(),
-        __metadata("design:type", Array)
-    ], User.prototype, "planets");
-    User = __decorate([
+    ], Mensajes.prototype, "mensaje");
+    Mensajes = __decorate([
         typeorm_1.Entity()
-    ], User);
-    return User;
+    ], Mensajes);
+    return Mensajes;
 }(typeorm_1.BaseEntity));
-exports.User = User;
+exports.Mensajes = Mensajes;

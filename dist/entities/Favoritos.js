@@ -24,33 +24,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.__esModule = true;
-exports.Planet = void 0;
+exports.Favoritos = void 0;
 var typeorm_1 = require("typeorm");
-var Users_1 = require("./Users");
-var Planet = /** @class */ (function (_super) {
-    __extends(Planet, _super);
-    function Planet() {
+var Usuarios_1 = require("./Usuarios");
+var Publicaciones_1 = require("./Publicaciones");
+var Favoritos = /** @class */ (function (_super) {
+    __extends(Favoritos, _super);
+    function Favoritos() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn(),
         __metadata("design:type", Number)
-    ], Planet.prototype, "id");
+    ], Favoritos.prototype, "id");
     __decorate([
-        typeorm_1.Column({ unique: true }),
-        __metadata("design:type", String)
-    ], Planet.prototype, "name");
-    __decorate([
-        typeorm_1.Column({ nullable: true }),
-        __metadata("design:type", String)
-    ], Planet.prototype, "picture_url");
-    __decorate([
-        typeorm_1.ManyToMany(function () { return Users_1.Users; }, function (user) { return user.planets; }),
+        typeorm_1.ManyToOne(function () { return Usuarios_1.Usuarios; }, function (usuarios) { return usuarios.id; }, { nullable: false }),
         __metadata("design:type", Array)
-    ], Planet.prototype, "users");
-    Planet = __decorate([
+    ], Favoritos.prototype, "usuario");
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Publicaciones_1.Publicaciones; }, function (publicaciones) { return publicaciones.id; }),
+        __metadata("design:type", Array)
+    ], Favoritos.prototype, "publicaciones");
+    Favoritos = __decorate([
         typeorm_1.Entity()
-    ], Planet);
-    return Planet;
+    ], Favoritos);
+    return Favoritos;
 }(typeorm_1.BaseEntity));
-exports.Planet = Planet;
+exports.Favoritos = Favoritos;
