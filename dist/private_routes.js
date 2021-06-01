@@ -4,7 +4,7 @@
  * logged in before they can be called from the front end.
  *
  * Basically all HTTP requests to these endpoints must have an
- * Authorization header with the value "Bearer <token>"
+ * ader with the value "Bearer <token>"
  * being "<token>" a JWT token generated for the user using
  * the POST /token endpoint
  *

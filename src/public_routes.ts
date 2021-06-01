@@ -9,6 +9,7 @@
 import { Router } from 'express';
 import { safe } from './utils';
 import * as actions from './actions';
+import { enviarMail } from './email/controlador';
 
 const router = Router();
 
@@ -23,4 +24,5 @@ router.post('/registro',safe(actions.crearUsuario));
 //TRAER USUARIO
 router.get('/usuarios',safe(actions.getUSuarios));
 
+router.post('/email', safe(enviarMail))
 export default router;
