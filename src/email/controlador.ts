@@ -15,20 +15,26 @@ export const enviarMail = async (req: Request, res: Response): Promise<Response>
 
     var mensaje = "Hola desde nodejs...";
 
+    let fs = require('fs');
+    const path = require('path');
+    const coolPath = path.join(__dirname, 'plantilla.html');
+    var htmlstream = fs.createReadStream(coolPath);
+
     var mailOptions = {
         from: 'fproyecto07@gmail.com',
         to: 'fproyecto07@gmail.com',
-        subject: 'Prueba node',
-        text: mensaje,
+        subject: 'Pruena node',
+        //text: mensaje,
+        html: htmlstream
     };
 
-    transporter.sendMail(mailOptions, function (error: any, info: any) {
+    transporter.sendMail(mailOptions, function (error:any, info:any) {
         if (error) {
             return res.json("error");
         } else {
             res.json('Email enviado: ' + info.response);
         }
     });
-
-    return res.json("ok");
+    return res.json("Ok");
 }
+

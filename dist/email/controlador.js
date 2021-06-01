@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.enviarMail = void 0;
 var enviarMail = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var nodemailer, transporter, mensaje, mailOptions;
+    var nodemailer, transporter, mensaje, fs, path, coolPath, htmlstream, mailOptions;
     return __generator(this, function (_a) {
         nodemailer = require('nodemailer');
         transporter = nodemailer.createTransport({
@@ -49,11 +49,16 @@ var enviarMail = function (req, res) { return __awaiter(void 0, void 0, void 0, 
             }
         });
         mensaje = "Hola desde nodejs...";
+        fs = require('fs');
+        path = require('path');
+        coolPath = path.join(__dirname, 'plantilla.html');
+        htmlstream = fs.createReadStream(coolPath);
         mailOptions = {
             from: 'fproyecto07@gmail.com',
             to: 'fproyecto07@gmail.com',
-            subject: 'Prueba node',
-            text: mensaje
+            subject: 'Pruena node',
+            //text: mensaje,
+            html: htmlstream
         };
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
@@ -63,7 +68,7 @@ var enviarMail = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 res.json('Email enviado: ' + info.response);
             }
         });
-        return [2 /*return*/, res.json("ok")];
+        return [2 /*return*/, res.json("Ok")];
     });
 }); };
 exports.enviarMail = enviarMail;
