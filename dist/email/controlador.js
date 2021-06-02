@@ -37,10 +37,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.enviarMail = void 0;
-var enviarMail = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var nodemailer, transporter, mensaje, fs, path, coolPath, htmlstream, mailOptions;
+var enviarMail = function (email, nombre) { return __awaiter(void 0, void 0, void 0, function () {
+    var nodemailer, handlebars, fs, readHTMLFile, transporter;
     return __generator(this, function (_a) {
-        nodemailer = require('nodemailer');
+        nodemailer = require("nodemailer");
+        handlebars = require("handlebars");
+        fs = require("fs");
+        readHTMLFile = function (path, callback) {
+            fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+                if (err) {
+                    throw err;
+                    callback(err);
+                }
+                else {
+                    callback(null, html);
+                }
+            });
+        };
         transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -48,27 +61,28 @@ var enviarMail = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 pass: 'proyectofinal-07'
             }
         });
-        mensaje = "Hola desde nodejs...";
-        fs = require('fs');
-        path = require('path');
-        coolPath = path.join(__dirname, 'plantilla.html');
-        htmlstream = fs.createReadStream(coolPath);
-        mailOptions = {
-            from: 'fproyecto07@gmail.com',
-            to: 'fproyecto07@gmail.com',
-            subject: 'Pruena node',
-            //text: mensaje,
-            html: htmlstream
-        };
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                return res.json("error");
-            }
-            else {
-                res.json('Email enviado: ' + info.response);
-            }
+        readHTMLFile(__dirname + '/plantilla.html', function (err, html) {
+            var template = handlebars.compile(html);
+            var replacements = {
+                username: nombre,
+                email: email,
+                verificar: "https://3001-emerald-meerkat-qz05aizk.ws-us08.gitpod.io/verificar/" + email
+            };
+            var htmlToSend = template(replacements);
+            console.log(htmlToSend);
+            var mailOptions = {
+                from: 'fproyecto07@gmail.com',
+                to: email,
+                subject: 'Verificar Cuenta',
+                html: htmlToSend
+            };
+            transporter.sendMail(mailOptions, function (error, response) {
+                if (error) {
+                    console.log(error);
+                }
+            });
         });
-        return [2 /*return*/, res.json("Ok")];
+        return [2 /*return*/];
     });
 }); };
 exports.enviarMail = enviarMail;

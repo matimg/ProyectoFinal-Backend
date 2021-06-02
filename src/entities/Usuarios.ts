@@ -31,6 +31,9 @@ export class Usuarios extends BaseEntity {
     @Column()
     tipoUsuario: string;
 
+    @Column()
+    activo: boolean;
+
     @OneToMany(() => Publicaciones, publicacion => publicacion.usuario)
     publicacion: Publicaciones[];
 
