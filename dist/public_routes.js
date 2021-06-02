@@ -29,6 +29,7 @@ exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("./utils");
 var actions = __importStar(require("./actions"));
+var controlador_1 = require("./email/controlador");
 var router = express_1.Router();
 // signup route, creates a new user in the DB
 // router.post('/user', safe(createUser));
@@ -38,4 +39,5 @@ router.post('/login', utils_1.safe(actions.login));
 router.post('/registro', utils_1.safe(actions.crearUsuario));
 //TRAER USUARIO
 router.get('/usuarios', utils_1.safe(actions.getUSuarios));
+router.post('/email', utils_1.safe(controlador_1.enviarMail));
 exports["default"] = router;
