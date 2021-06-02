@@ -63,6 +63,10 @@ var Usuarios = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], Usuarios.prototype, "tipoUsuario");
     __decorate([
+        typeorm_1.Column(),
+        __metadata("design:type", Boolean)
+    ], Usuarios.prototype, "activo");
+    __decorate([
         typeorm_1.OneToMany(function () { return Publicaciones_1.Publicaciones; }, function (publicacion) { return publicacion.usuario; }),
         __metadata("design:type", Array)
     ], Usuarios.prototype, "publicacion");

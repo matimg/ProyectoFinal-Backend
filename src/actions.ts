@@ -3,6 +3,7 @@ import { getRepository } from 'typeorm'  // getRepository"  traer una tabla de l
 import { Usuarios } from './entities/Usuarios'
 import { Exception } from './utils'
 import jwt from 'jsonwebtoken';
+import { enviarMail } from './email/controlador';
 
 //LOGIN- DEVUELVE UN TOKEN DE AUTORIZACION AL USUARIO
 export const login = async (req: Request, res: Response): Promise<Response> => {
@@ -38,13 +39,24 @@ export const crearUsuario = async (req: Request, res:Response): Promise<Response
     USUARIO.email = req.body.email;
     USUARIO.password = req.body.password;
     USUARIO.tipoUsuario = req.body.tipoUsuario;
+    USUARIO.activo = false;
 
 	const nuevoUsuario = getRepository(Usuarios).create(USUARIO);  //Creo un usuario
-	const results = await getRepository(Usuarios).save(nuevoUsuario); //Grabo el nuevo usuario 
+    const results = await getRepository(Usuarios).save(nuevoUsuario); //Grabo el nuevo usuario 
+    enviarMail(USUARIO.email, USUARIO.nombre); //Envía email de confirmacion
 	return res.json(results);
 }
 
 export const getUSuarios = async (req: Request, res: Response): Promise<Response> =>{
     const usuario = await getRepository(Usuarios).find();
     return res.json(usuario);
+}
+
+export const updateUsuario = async (req: Request, res: Response): Promise<Response> =>{
+    const USUARIO = await getRepository(Usuarios).findOne({where:{email: req.params.email}});
+    if(!USUARIO) throw new Exception("Este usuario no existe");
+    USUARIO.activo = true;
+    await getRepository(Usuarios).save(USUARIO);
+    console.log(USUARIO);
+    return res.json(USUARIO);
 }

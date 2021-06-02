@@ -25,4 +25,7 @@ router.post('/registro',safe(actions.crearUsuario));
 router.get('/usuarios',safe(actions.getUSuarios));
 
 router.post('/email', safe(enviarMail))
+
+//ACTIVA UN USUARIO
+router.put('/verificar/:email', safe(actions.updateUsuario))
 export default router;
