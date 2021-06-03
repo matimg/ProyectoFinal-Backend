@@ -45,9 +45,10 @@ var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var controlador_1 = require("./email/controlador");
+var bcrypt = require('bcrypt');
 //LOGIN- DEVUELVE UN TOKEN DE AUTORIZACION AL USUARIO
 var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var usuariosRepo, USUARIO, token;
+    var usuariosRepo, USUARIO, token, validacionPassword;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -58,21 +59,27 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios)];
             case 1:
                 usuariosRepo = _a.sent();
-                return [4 /*yield*/, usuariosRepo.findOne({ where: { email: req.body.email, password: req.body.password } })];
+                return [4 /*yield*/, usuariosRepo.findOne({ where: { email: req.body.email } })];
             case 2:
                 USUARIO = _a.sent();
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
                 if (!USUARIO.activo)
                     throw new utils_1.Exception("EL usuario todavia no esta activo");
-                token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY);
+                token = '';
+                return [4 /*yield*/, bcrypt.compare(req.body.password, USUARIO.password)];
+            case 3:
+                validacionPassword = _a.sent();
+                validacionPassword ? token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY) : token = 'Invalid password';
+                if (token === 'Invalid password')
+                    throw new utils_1.Exception("Contraseña incorrecta");
                 return [2 /*return*/, res.json({ USUARIO: USUARIO, token: token })];
         }
     });
 }); };
 exports.login = login;
 var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userRepo, usuario, USUARIO, nuevoUsuario, results;
+    var userRepo, usuario, USUARIO;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -103,12 +110,32 @@ var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0
                 USUARIO.password = req.body.password;
                 USUARIO.tipoUsuario = req.body.tipoUsuario;
                 USUARIO.activo = false;
-                nuevoUsuario = typeorm_1.getRepository(Usuarios_1.Usuarios).create(USUARIO);
-                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(nuevoUsuario)];
-            case 2:
-                results = _a.sent();
-                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
-                return [2 /*return*/, res.json(results)];
+                //Encripta la password y la guarda encriptada
+                bcrypt.genSalt(10, function (err, salt) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    bcrypt.hash(USUARIO.password, salt, function (err, hash) { return __awaiter(void 0, void 0, void 0, function () {
+                        var nuevoUsuario, results;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    //GUARDAR EN BASE DE DATOS
+                                    USUARIO.password = hash;
+                                    nuevoUsuario = typeorm_1.getRepository(Usuarios_1.Usuarios).create(USUARIO);
+                                    return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(nuevoUsuario)];
+                                case 1:
+                                    results = _a.sent();
+                                    controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                });
+                return [2 /*return*/, res.json("Usuario registrado")];
         }
     });
 }); };
@@ -157,11 +184,29 @@ var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, v
                 if (!USUARIO)
                     throw new utils_1.Exception("Este usuario no existe");
                 random = Math.random().toString(36).substring(7);
-                USUARIO.password = random;
-                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
-            case 2:
-                _a.sent();
-                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', USUARIO.password);
+                console.log(random);
+                bcrypt.genSalt(10, function (err, salt) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    bcrypt.hash(random, salt, function (err, hash) { return __awaiter(void 0, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    //GUARDAR EN BASE DE DATOS
+                                    USUARIO.password = hash;
+                                    return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
+                                case 1:
+                                    _a.sent();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                });
+                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random);
                 console.log(USUARIO);
                 return [2 /*return*/, res.json(USUARIO)];
         }
