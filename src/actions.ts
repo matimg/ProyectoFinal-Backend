@@ -14,6 +14,8 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     const usuariosRepo = await getRepository(Usuarios);
     const USUARIO = await usuariosRepo.findOne({ where: { email: req.body.email, password: req.body.password } });
     if (!USUARIO) throw new Exception("El email o la contraseña es inválida", 401);
+    
+    if(!USUARIO.activo) throw new Exception("EL usuario todavia no esta activo");
 
     const token = jwt.sign({ USUARIO }, process.env.JWT_KEY as string);
     return res.json({ USUARIO, token });

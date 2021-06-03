@@ -1,6 +1,22 @@
 import { Request, Response } from 'express';
 
-export const enviarMail = async (email:string, nombre:string ) => {
+export const enviarMail = async (email:string, nombre:string, tipo: string, pass: string ) => {
+    var plantilla = '';
+    var link = '';
+    switch (tipo) {
+        case 'Verificar usuario':
+            plantilla = 'Verificacion.html';
+            link = 'verificacion/'+email;
+            break;
+    
+        case 'Recuperar contraseña':
+            plantilla = 'Recuperacion.html';
+            link = 'login';
+            break;
+    
+        default:
+            break;
+    }
     var nodemailer = require("nodemailer");
     var handlebars = require("handlebars");
     var fs = require("fs");
@@ -21,22 +37,22 @@ export const enviarMail = async (email:string, nombre:string ) => {
      var transporter = nodemailer.createTransport({
          service: 'gmail',
          auth: {
-             user: 'fproyecto07@gmail.com',
-             pass: 'proyectofinal-07'
+             user: process.env.USUARIO,
+             pass: process.env.PASS
          }
      });
 
-    readHTMLFile(__dirname + '/views/plantilla.html', function (err:any, html:any) {
+    readHTMLFile(__dirname + '/views/'+plantilla, function (err:any, html:any) {
         var template = handlebars.compile(html);
         var replacements = {
             username: nombre,
             email: email,
-            verificar: "https://3001-emerald-meerkat-qz05aizk.ws-us08.gitpod.io/verificar/"+email
+            verificar: process.env.URL + link
         };
         var htmlToSend = template(replacements);
         console.log(htmlToSend);
          var mailOptions = {
-         from: 'fproyecto07@gmail.com',
+         from: process.env.USUARIO,
          to: email,
          subject: 'Verificar Cuenta',
          html: htmlToSend
