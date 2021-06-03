@@ -42,4 +42,6 @@ router.get('/usuarios', utils_1.safe(actions.getUSuarios));
 router.post('/email', utils_1.safe(controlador_1.enviarMail));
 //ACTIVA UN USUARIO
 router.put('/verificar/:email', utils_1.safe(actions.updateUsuario));
+// RECUPERAR PASSWORD
+router.put('/recuperar', utils_1.safe(actions.recuperarPassword));
 exports["default"] = router;

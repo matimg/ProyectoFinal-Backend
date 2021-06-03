@@ -28,4 +28,8 @@ router.post('/email', safe(enviarMail))
 
 //ACTIVA UN USUARIO
 router.put('/verificar/:email', safe(actions.updateUsuario))
+
+// RECUPERAR PASSWORD
+router.put('/recuperar', safe(actions.recuperarPassword))
+
 export default router;
