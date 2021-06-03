@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -63,6 +63,8 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 USUARIO = _a.sent();
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
+                if (!USUARIO.activo)
+                    throw new utils_1.Exception("EL usuario todavia no esta activo");
                 token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY);
                 return [2 /*return*/, res.json({ USUARIO: USUARIO, token: token })];
         }
@@ -105,7 +107,7 @@ var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(nuevoUsuario)];
             case 2:
                 results = _a.sent();
-                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre); //Envía email de confirmacion
+                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
                 return [2 /*return*/, res.json(results)];
         }
     });
@@ -142,3 +144,27 @@ var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 
     });
 }); };
 exports.updateUsuario = updateUsuario;
+var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var USUARIO, random;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!req.body.email)
+                    throw new utils_1.Exception('Por favor ingrese un email');
+                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { email: req.body.email } })];
+            case 1:
+                USUARIO = _a.sent();
+                if (!USUARIO)
+                    throw new utils_1.Exception("Este usuario no existe");
+                random = Math.random().toString(36).substring(7);
+                USUARIO.password = random;
+                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
+            case 2:
+                _a.sent();
+                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', USUARIO.password);
+                console.log(USUARIO);
+                return [2 /*return*/, res.json(USUARIO)];
+        }
+    });
+}); };
+exports.recuperarPassword = recuperarPassword;

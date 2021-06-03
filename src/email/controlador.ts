@@ -5,12 +5,12 @@ export const enviarMail = async (email:string, nombre:string, tipo: string, pass
     var link = '';
     switch (tipo) {
         case 'Verificar usuario':
-            plantilla = 'Verificacion.html';
+            plantilla = 'verificacion.html';
             link = 'verificacion/'+email;
             break;
     
         case 'Recuperar contraseña':
-            plantilla = 'Recuperacion.html';
+            plantilla = 'recuperacion.html';
             link = 'login';
             break;
     
@@ -45,9 +45,10 @@ export const enviarMail = async (email:string, nombre:string, tipo: string, pass
     readHTMLFile(__dirname + '/views/'+plantilla, function (err:any, html:any) {
         var template = handlebars.compile(html);
         var replacements = {
-            username: nombre,
+            nombre: nombre,
             email: email,
-            verificar: process.env.URL + link
+            verificar: process.env.URL + link,
+            password: pass
         };
         var htmlToSend = template(replacements);
         console.log(htmlToSend);

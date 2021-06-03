@@ -45,7 +45,7 @@ export const crearUsuario = async (req: Request, res:Response): Promise<Response
 
 	const nuevoUsuario = getRepository(Usuarios).create(USUARIO);  //Creo un usuario
     const results = await getRepository(Usuarios).save(nuevoUsuario); //Grabo el nuevo usuario 
-    enviarMail(USUARIO.email, USUARIO.nombre); //Envía email de confirmacion
+    enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
 	return res.json(results);
 }
 
@@ -59,6 +59,18 @@ export const updateUsuario = async (req: Request, res: Response): Promise<Respon
     if(!USUARIO) throw new Exception("Este usuario no existe");
     USUARIO.activo = true;
     await getRepository(Usuarios).save(USUARIO);
+    console.log(USUARIO);
+    return res.json(USUARIO);
+}
+
+export const recuperarPassword = async (req: Request, res: Response): Promise<Response> =>{
+    if(!req.body.email) throw new Exception('Por favor ingrese un email');
+    const USUARIO = await getRepository(Usuarios).findOne({where:{email: req.body.email}});
+    if(!USUARIO) throw new Exception("Este usuario no existe");
+    let random = Math.random().toString(36).substring(7);
+    USUARIO.password = random;
+    await getRepository(Usuarios).save(USUARIO);
+    enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', USUARIO.password);
     console.log(USUARIO);
     return res.json(USUARIO);
 }

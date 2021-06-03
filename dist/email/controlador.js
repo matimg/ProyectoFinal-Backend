@@ -37,9 +37,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.enviarMail = void 0;
-var enviarMail = function (email, nombre) { return __awaiter(void 0, void 0, void 0, function () {
-    var nodemailer, handlebars, fs, readHTMLFile, transporter;
+var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0, void 0, void 0, function () {
+    var plantilla, link, nodemailer, handlebars, fs, readHTMLFile, transporter;
     return __generator(this, function (_a) {
+        plantilla = '';
+        link = '';
+        switch (tipo) {
+            case 'Verificar usuario':
+                plantilla = 'verificacion.html';
+                link = 'verificacion/' + email;
+                break;
+            case 'Recuperar contraseña':
+                plantilla = 'recuperacion.html';
+                link = 'login';
+                break;
+            default:
+                break;
+        }
         nodemailer = require("nodemailer");
         handlebars = require("handlebars");
         fs = require("fs");
@@ -57,21 +71,22 @@ var enviarMail = function (email, nombre) { return __awaiter(void 0, void 0, voi
         transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'fproyecto07@gmail.com',
-                pass: 'proyectofinal-07'
+                user: process.env.USUARIO,
+                pass: process.env.PASS
             }
         });
-        readHTMLFile(__dirname + '/plantilla.html', function (err, html) {
+        readHTMLFile(__dirname + '/views/' + plantilla, function (err, html) {
             var template = handlebars.compile(html);
             var replacements = {
-                username: nombre,
+                nombre: nombre,
                 email: email,
-                verificar: "https://3001-emerald-meerkat-qz05aizk.ws-us08.gitpod.io/verificar/" + email
+                verificar: process.env.URL + link,
+                password: pass
             };
             var htmlToSend = template(replacements);
             console.log(htmlToSend);
             var mailOptions = {
-                from: 'fproyecto07@gmail.com',
+                from: process.env.USUARIO,
                 to: email,
                 subject: 'Verificar Cuenta',
                 html: htmlToSend
