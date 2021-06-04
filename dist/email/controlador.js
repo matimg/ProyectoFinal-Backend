@@ -45,7 +45,7 @@ var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0,
         switch (tipo) {
             case 'Verificar usuario':
                 plantilla = 'verificacion.html';
-                link = 'verificacion/' + email;
+                link = '/verificacion/' + email;
                 break;
             case 'Recuperar contraseña':
                 plantilla = 'recuperacion.html';
@@ -80,7 +80,7 @@ var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0,
             var replacements = {
                 nombre: nombre,
                 email: email,
-                verificar: process.env.URL + link,
+                verificar: process.env.URL_FRONT + link,
                 password: pass
             };
             var htmlToSend = template(replacements);
@@ -88,7 +88,7 @@ var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0,
             var mailOptions = {
                 from: process.env.USUARIO,
                 to: email,
-                subject: 'Verificar Cuenta',
+                subject: tipo,
                 html: htmlToSend
             };
             transporter.sendMail(mailOptions, function (error, response) {

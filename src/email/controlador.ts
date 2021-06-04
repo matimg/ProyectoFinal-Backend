@@ -6,7 +6,7 @@ export const enviarMail = async (email:string, nombre:string, tipo: string, pass
     switch (tipo) {
         case 'Verificar usuario':
             plantilla = 'verificacion.html';
-            link = 'verificacion/'+email;
+            link = '/verificacion/'+email;
             break;
     
         case 'Recuperar contraseña':
@@ -47,7 +47,7 @@ export const enviarMail = async (email:string, nombre:string, tipo: string, pass
         var replacements = {
             nombre: nombre,
             email: email,
-            verificar: process.env.URL + link,
+            verificar: process.env.URL_FRONT + link,
             password: pass
         };
         var htmlToSend = template(replacements);
@@ -55,7 +55,7 @@ export const enviarMail = async (email:string, nombre:string, tipo: string, pass
          var mailOptions = {
          from: process.env.USUARIO,
          to: email,
-         subject: 'Verificar Cuenta',
+         subject: tipo,
          html: htmlToSend
      };
         transporter.sendMail(mailOptions, function (error:any, response:any) {
