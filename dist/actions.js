@@ -64,8 +64,6 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 USUARIO = _a.sent();
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
-                if (!USUARIO.activo)
-                    throw new utils_1.Exception("EL usuario todavia no esta activo");
                 token = '';
                 return [4 /*yield*/, bcrypt.compare(req.body.password, USUARIO.password)];
             case 3:
@@ -73,7 +71,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 validacionPassword ? token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY) : token = 'Invalid password';
                 if (token === 'Invalid password')
                     throw new utils_1.Exception("Contraseña incorrecta");
-                return [2 /*return*/, res.json({ USUARIO: USUARIO, token: token })];
+                return [2 /*return*/, res.json({ message: "OK", token: token })];
         }
     });
 }); };

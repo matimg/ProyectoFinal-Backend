@@ -18,14 +18,14 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     const USUARIO = await usuariosRepo.findOne({ where: { email: req.body.email } });
     if (!USUARIO) throw new Exception("El email o la contraseña es inválida", 401);
 
-    if(!USUARIO.activo) throw new Exception("EL usuario todavia no esta activo");
+    //if(!USUARIO.activo) throw new Exception("EL usuario todavia no esta activo");
 
     let token = '';
     const validacionPassword = await bcrypt.compare(req.body.password, USUARIO.password)
         validacionPassword ?  token = jwt.sign({ USUARIO }, process.env.JWT_KEY as string) : token = 'Invalid password'
     if(token === 'Invalid password') throw new Exception("Contraseña incorrecta");
        
-    return res.json({ USUARIO, token});
+    return res.json({ message: "OK", token});
 
   
 }
