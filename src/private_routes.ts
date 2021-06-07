@@ -32,5 +32,9 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 }
 
 // router.get('/user', safe(actions.getUsers));
+//PUBLICAR
+router.post('/usuarios/publicar',verifyToken, safe(actions.crearPublicacion));
+//PUBLICACIONES DE UN USUARIO
+router.get('/usuarios/publicaciones',verifyToken, safe(actions.getPublicacionesUsuario));
 
 export default router;

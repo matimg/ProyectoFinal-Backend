@@ -1,10 +1,11 @@
 import { Request, Response } from 'express'
-import { getRepository } from 'typeorm'  // getRepository"  traer una tabla de la base de datos asociada al objeto
+import { getRepository, ObjectLiteral } from 'typeorm'  // getRepository"  traer una tabla de la base de datos asociada al objeto
 import { Usuarios } from './entities/Usuarios'
 import { Exception } from './utils'
 import jwt from 'jsonwebtoken';
 import { enviarMail } from './email/controlador';
 import { runInNewContext } from 'vm';
+import { Publicaciones } from './entities/Publicaciones';
 
 const bcrypt = require('bcrypt');
 
@@ -108,6 +109,37 @@ export const recuperarPassword = async (req: Request, res: Response): Promise<Re
     enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random);
     console.log(USUARIO);
     return res.json(USUARIO);
+}
+
+//CREA UNA PUBLICACION
+export const crearPublicacion = async (req: Request, res: Response): Promise<Response> => {
+    //Valida campos del body
+    if(!req.body.titulo) throw new Exception("Por favor ingrese un título");
+    if(!req.body.descripcion) throw new Exception("Por favor ingrese una descripción");
+    //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+    if(!req.body.categoria) throw new Exception("Por favor ingrese una categoría");
+
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+
+    //Creo una instancia de publicacion con los datos del body
+    const PUBLICACION = new Publicaciones();
+    PUBLICACION.titulo = req.body.titulo;
+    PUBLICACION.descripcion = req.body.descripcion;
+    PUBLICACION.url = req.body.url;
+    PUBLICACION.categoria = req.body.categoria;
+    PUBLICACION.usuario = usuario_id; //Relaciono al usuario logueado
+    const nuevaPublicacion = getRepository(Publicaciones).create(PUBLICACION);  //Creo la publicacion
+    const results = await getRepository(Publicaciones).save(nuevaPublicacion); //Grabo la nueva publicacion
+    return res.json("Publicacion creada con éxito");
+}
+
+//OBTIENE TODAS LAS PUBLICACIONES DE UN USUARIO
+export const getPublicacionesUsuario = async (req: Request, res: Response): Promise<Response> => {
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const PUBLICACIONES = await getRepository(Publicaciones).find({ where: { usuario: usuario_id } });
+    return res.json(PUBLICACIONES);
 }
 
 
