@@ -72,7 +72,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 validacionPassword ? token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY) : token = 'Invalid password';
                 if (token === 'Invalid password')
                     throw new utils_1.Exception("Contraseña incorrecta");
-                return [2 /*return*/, res.json({ message: "OK", token: token })];
+                return [2 /*return*/, res.json({ message: "OK", token: token, usuario: USUARIO })];
         }
     });
 }); };
@@ -134,7 +134,7 @@ var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0
                         });
                     }); });
                 });
-                return [2 /*return*/, res.json("Usuario registrado")];
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
@@ -249,9 +249,14 @@ var getPublicacionesUsuario = function (req, res) { return __awaiter(void 0, voi
         switch (_a.label) {
             case 0:
                 usuario_id = req.user.USUARIO.id;
-                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).find({ where: { usuario: usuario_id } })];
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                        .createQueryBuilder("Publicaciones")
+                        .where("Publicaciones.usuario = :id", { id: usuario_id })
+                        .orderBy("id", "DESC")
+                        .getMany()];
             case 1:
                 PUBLICACIONES = _a.sent();
+                console.log(PUBLICACIONES);
                 return [2 /*return*/, res.json(PUBLICACIONES)];
         }
     });
@@ -305,7 +310,7 @@ var deletePublicacion = function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, publicacionRepo["delete"](PUBLICACION)];
             case 2:
                 result = _a.sent();
-                return [2 /*return*/, res.json({ message: "OK", result: result })];
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
         }
     });
 }); };

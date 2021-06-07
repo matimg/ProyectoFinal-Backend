@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { getRepository, ObjectLiteral } from 'typeorm'  // getRepository"  traer una tabla de la base de datos asociada al objeto
+import { getRepository, ObjectLiteral, getConnection } from 'typeorm'  // getRepository"  traer una tabla de la base de datos asociada al objeto
 import { Usuarios } from './entities/Usuarios'
 import { Exception } from './utils'
 import jwt from 'jsonwebtoken';
@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
         validacionPassword ?  token = jwt.sign({ USUARIO }, process.env.JWT_KEY as string) : token = 'Invalid password'
     if(token === 'Invalid password') throw new Exception("Contraseña incorrecta");
        
-    return res.json({ message: "OK", token});
+    return res.json({ message: "OK", token, usuario: USUARIO});
 
   
 }
@@ -68,7 +68,7 @@ export const crearUsuario = async (req: Request, res:Response): Promise<Response
             enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
         })
     })
-	return res.json("Usuario registrado");
+	return res.json({ message: "Ok", usuario: USUARIO});
 }
 
 export const getUSuarios = async (req: Request, res: Response): Promise<Response> =>{
@@ -138,7 +138,13 @@ export const crearPublicacion = async (req: Request, res: Response): Promise<Res
 export const getPublicacionesUsuario = async (req: Request, res: Response): Promise<Response> => {
     //Obtengo id del usuario desde el token
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
-    const PUBLICACIONES = await getRepository(Publicaciones).find({ where: { usuario: usuario_id } });
+    const PUBLICACIONES = await getRepository(Publicaciones)
+    .createQueryBuilder("Publicaciones")
+    .where("Publicaciones.usuario = :id", {id: usuario_id})
+    .orderBy("id", "DESC")
+    .getMany();
+
+    console.log(PUBLICACIONES);
     return res.json(PUBLICACIONES);
 }
 
@@ -172,7 +178,7 @@ export const deletePublicacion = async (req: Request, res: Response): Promise<Re
     if(!PUBLICACION) throw new Exception("La publicación no existe");
 
     const result = await publicacionRepo.delete(PUBLICACION);
-    return res.json({message: "OK", result: result});
+    return res.json({message: "Ok", result: result});
 }
 
 
