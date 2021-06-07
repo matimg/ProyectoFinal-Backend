@@ -23,7 +23,7 @@ const router = Router();
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     //headers con el token
     const token = req.header('Authorization');
-    if (!token) return res.status(400).json({ 'message': 'ACCESS DENIED' });
+    if (!token) return res.status(400).json({ 'message': 'ACCESO DENEGADO' });
 
     const decoded = jwt.verify(token as string, process.env.JWT_KEY as string);
     req.user = decoded;
@@ -31,6 +31,13 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     next();
 }
 
-// router.get('/user', safe(actions.getUsers));
+//LISTA PUBLICACIONES DE UN USUARIO
+router.get('/usuarios/publicaciones',verifyToken, safe(actions.getPublicacionesUsuario));
+//PUBLICAR
+router.post('/usuarios/publicaciones',verifyToken, safe(actions.crearPublicacion));
+//MODIFICA UNA PUBLICACION DE UN USUARIO
+router.put('/usuarios/publicaciones/:id',verifyToken, safe(actions.updatePublicacion));
+//MODIFICA UNA PUBLICACION DE UN USUARIO
+router.delete('/usuarios/publicaciones/:id',verifyToken, safe(actions.deletePublicacion));
 
 export default router;
