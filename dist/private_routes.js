@@ -45,14 +45,17 @@ var verifyToken = function (req, res, next) {
     //headers con el token
     var token = req.header('Authorization');
     if (!token)
-        return res.status(400).json({ 'message': 'ACCESS DENIED' });
+        return res.status(400).json({ 'message': 'ACCESO DENEGADO' });
     var decoded = jsonwebtoken_1["default"].verify(token, process.env.JWT_KEY);
     req.user = decoded;
     next();
 };
-// router.get('/user', safe(actions.getUsers));
-//PUBLICAR
-router.post('/usuarios/publicar', verifyToken, utils_1.safe(actions.crearPublicacion));
-//PUBLICACIONES DE UN USUARIO
+//LISTA PUBLICACIONES DE UN USUARIO
 router.get('/usuarios/publicaciones', verifyToken, utils_1.safe(actions.getPublicacionesUsuario));
+//PUBLICAR
+router.post('/usuarios/publicaciones', verifyToken, utils_1.safe(actions.crearPublicacion));
+//MODIFICA UNA PUBLICACION DE UN USUARIO
+router.put('/usuarios/publicaciones/:id', verifyToken, utils_1.safe(actions.updatePublicacion));
+//MODIFICA UNA PUBLICACION DE UN USUARIO
+router["delete"]('/usuarios/publicaciones/:id', verifyToken, utils_1.safe(actions.deletePublicacion));
 exports["default"] = router;

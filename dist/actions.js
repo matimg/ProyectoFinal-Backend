@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.getPublicacionesUsuario = exports.crearPublicacion = exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -237,7 +237,7 @@ var crearPublicacion = function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).save(nuevaPublicacion)];
             case 1:
                 results = _a.sent();
-                return [2 /*return*/, res.json("Publicacion creada con éxito")];
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
         }
     });
 }); };
@@ -257,3 +257,56 @@ var getPublicacionesUsuario = function (req, res) { return __awaiter(void 0, voi
     });
 }); };
 exports.getPublicacionesUsuario = getPublicacionesUsuario;
+//MODIFICA PUBLICACION DE UN USUARIO
+var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, PUBLICACION;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                //Valida campos del body
+                if (!req.body.titulo)
+                    throw new utils_1.Exception("Por favor ingrese un título");
+                if (!req.body.descripcion)
+                    throw new utils_1.Exception("Por favor ingrese una descripción");
+                //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+                if (!req.body.categoria)
+                    throw new utils_1.Exception("Por favor ingrese una categoría");
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                PUBLICACION = _a.sent();
+                if (!PUBLICACION)
+                    throw new utils_1.Exception("Esta publicación no existe");
+                PUBLICACION.titulo = req.body.titulo;
+                PUBLICACION.descripcion = req.body.descripcion;
+                PUBLICACION.url = req.body.url;
+                PUBLICACION.categoria = req.body.categoria;
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).save(PUBLICACION)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
+        }
+    });
+}); };
+exports.updatePublicacion = updatePublicacion;
+//BORRA PERSONAJE FAVORITO
+var deletePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, publicacionRepo, PUBLICACION, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                publicacionRepo = typeorm_1.getRepository(Publicaciones_1.Publicaciones);
+                return [4 /*yield*/, publicacionRepo.findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                PUBLICACION = _a.sent();
+                if (!PUBLICACION)
+                    throw new utils_1.Exception("La publicación no existe");
+                return [4 /*yield*/, publicacionRepo["delete"](PUBLICACION)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "OK", result: result })];
+        }
+    });
+}); };
+exports.deletePublicacion = deletePublicacion;

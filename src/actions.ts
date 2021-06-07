@@ -131,7 +131,7 @@ export const crearPublicacion = async (req: Request, res: Response): Promise<Res
     PUBLICACION.usuario = usuario_id; //Relaciono al usuario logueado
     const nuevaPublicacion = getRepository(Publicaciones).create(PUBLICACION);  //Creo la publicacion
     const results = await getRepository(Publicaciones).save(nuevaPublicacion); //Grabo la nueva publicacion
-    return res.json("Publicacion creada con éxito");
+    return res.json({ message: "Ok", publicacion: PUBLICACION});
 }
 
 //OBTIENE TODAS LAS PUBLICACIONES DE UN USUARIO
@@ -140,6 +140,39 @@ export const getPublicacionesUsuario = async (req: Request, res: Response): Prom
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
     const PUBLICACIONES = await getRepository(Publicaciones).find({ where: { usuario: usuario_id } });
     return res.json(PUBLICACIONES);
+}
+
+//MODIFICA PUBLICACION DE UN USUARIO
+export const updatePublicacion = async (req: Request, res: Response): Promise<Response> =>{
+    //Valida campos del body
+    if(!req.body.titulo) throw new Exception("Por favor ingrese un título");
+    if(!req.body.descripcion) throw new Exception("Por favor ingrese una descripción");
+    //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+    if(!req.body.categoria) throw new Exception("Por favor ingrese una categoría");
+
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const PUBLICACION = await getRepository(Publicaciones).findOne({where:{id: req.params.id, usuario: usuario_id}});
+    if(!PUBLICACION) throw new Exception("Esta publicación no existe");
+
+    PUBLICACION.titulo = req.body.titulo;
+    PUBLICACION.descripcion = req.body.descripcion;
+    PUBLICACION.url = req.body.url;
+    PUBLICACION.categoria = req.body.categoria;
+    await getRepository(Publicaciones).save(PUBLICACION);
+    return res.json({ message: "Ok", publicacion: PUBLICACION});
+}
+
+//BORRA PERSONAJE FAVORITO
+export const deletePublicacion = async (req: Request, res: Response): Promise<Response> => {
+   //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const publicacionRepo = getRepository(Publicaciones);
+    const PUBLICACION = await publicacionRepo.findOne({where:{id: req.params.id, usuario: usuario_id}});
+    if(!PUBLICACION) throw new Exception("La publicación no existe");
+
+    const result = await publicacionRepo.delete(PUBLICACION);
+    return res.json({message: "OK", result: result});
 }
 
 
