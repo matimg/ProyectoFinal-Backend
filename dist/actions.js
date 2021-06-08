@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -151,6 +151,7 @@ var getUSuarios = function (req, res) { return __awaiter(void 0, void 0, void 0,
     });
 }); };
 exports.getUSuarios = getUSuarios;
+//ACTIVA AL USUARIO
 var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var USUARIO;
     return __generator(this, function (_a) {
@@ -170,6 +171,7 @@ var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 
     });
 }); };
 exports.updateUsuario = updateUsuario;
+//ENVÍA EMAIL CON UNA NUEVA CONTRASEÑA RANDOM
 var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var USUARIO, random;
     return __generator(this, function (_a) {
@@ -212,6 +214,33 @@ var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, v
     });
 }); };
 exports.recuperarPassword = recuperarPassword;
+//MODIFICA DATOS DEL PERFIL USUARIO
+var updatePerfil = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, USUARIO;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!req.body.nombre)
+                    throw new utils_1.Exception("Por favor ingrese su nombre");
+                if (!req.body.apellido)
+                    throw new utils_1.Exception("Por favor ingrese su apellido");
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { id: usuario_id } })];
+            case 1:
+                USUARIO = _a.sent();
+                if (!USUARIO)
+                    throw new utils_1.Exception("Este usuario no existe");
+                USUARIO.nombre = req.body.nombre;
+                USUARIO.apellido = req.body.apellido;
+                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
+            case 2:
+                _a.sent();
+                console.log(USUARIO);
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
+        }
+    });
+}); };
+exports.updatePerfil = updatePerfil;
 //CREA UNA PUBLICACION
 var crearPublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var usuario_id, PUBLICACION, nuevaPublicacion, results;
@@ -294,7 +323,7 @@ var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, v
     });
 }); };
 exports.updatePublicacion = updatePublicacion;
-//BORRA PERSONAJE FAVORITO
+//BORRA PUBLICACION DE UN USUARIO
 var deletePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var usuario_id, publicacionRepo, PUBLICACION, result;
     return __generator(this, function (_a) {

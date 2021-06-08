@@ -30,7 +30,8 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     next();
 }
-
+//MODIFICA PERFIL DE UN USUARIO
+router.put('/usuarios/',verifyToken, safe(actions.updatePerfil));
 //LISTA PUBLICACIONES DE UN USUARIO
 router.get('/usuarios/publicaciones',verifyToken, safe(actions.getPublicacionesUsuario));
 //PUBLICAR

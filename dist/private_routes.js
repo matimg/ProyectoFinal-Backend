@@ -50,6 +50,8 @@ var verifyToken = function (req, res, next) {
     req.user = decoded;
     next();
 };
+//MODIFICA PERFIL DE UN USUARIO
+router.put('/usuarios/', verifyToken, utils_1.safe(actions.updatePerfil));
 //LISTA PUBLICACIONES DE UN USUARIO
 router.get('/usuarios/publicaciones', verifyToken, utils_1.safe(actions.getPublicacionesUsuario));
 //PUBLICAR

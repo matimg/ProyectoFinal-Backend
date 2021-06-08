@@ -32,15 +32,15 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 }
 export const crearUsuario = async (req: Request, res:Response): Promise<Response> =>{
     // important validations to avoid ambiguos errors, the client needs to understand what went wrong
-	if(!req.body.nombre) throw new Exception("Por favor ingrese su nombre")
-	if(!req.body.apellido) throw new Exception("Por favor ingrese su apellido")
-	if(!req.body.fechaNacimiento) throw new Exception("Por favor ingrese su fechaNacimiento") // Preguntar si se valida que es mayor de edad en el front o en el back
-    if(!req.body.email) throw new Exception("Por favor ingrese su email")
-	if(!req.body.password) throw new Exception("Por favor ingrese su contraseña")
-    if(!req.body.tipoUsuario) throw new Exception("Por favor ingrese su tipoUsuario")
+	if(!req.body.nombre) throw new Exception("Por favor ingrese su nombre");
+	if(!req.body.apellido) throw new Exception("Por favor ingrese su apellido");
+	if(!req.body.fechaNacimiento) throw new Exception("Por favor ingrese su fechaNacimiento"); // Preguntar si se valida que es mayor de edad en el front o en el back
+    if(!req.body.email) throw new Exception("Por favor ingrese su email");
+	if(!req.body.password) throw new Exception("Por favor ingrese su contraseña");
+    if(!req.body.tipoUsuario) throw new Exception("Por favor ingrese su tipoUsuario");
     //Valida que el usuario no exista
-	const userRepo = getRepository(Usuarios)
-	const usuario = await userRepo.findOne({ where: {email: req.body.email }})
+	const userRepo = getRepository(Usuarios);
+	const usuario = await userRepo.findOne({ where: {email: req.body.email }});
     if(usuario) throw new Exception("Este usuario ya existe");
 
     const USUARIO = new Usuarios();
@@ -76,6 +76,7 @@ export const getUSuarios = async (req: Request, res: Response): Promise<Response
     return res.json(usuario);
 }
 
+//ACTIVA AL USUARIO
 export const updateUsuario = async (req: Request, res: Response): Promise<Response> =>{
     const USUARIO = await getRepository(Usuarios).findOne({where:{email: req.params.email}});
     if(!USUARIO) throw new Exception("Este usuario no existe");
@@ -85,6 +86,7 @@ export const updateUsuario = async (req: Request, res: Response): Promise<Respon
     return res.json(USUARIO);
 }
 
+//ENVÍA EMAIL CON UNA NUEVA CONTRASEÑA RANDOM
 export const recuperarPassword = async (req: Request, res: Response): Promise<Response> =>{
     if(!req.body.email) throw new Exception('Por favor ingrese un email');
     const USUARIO = await getRepository(Usuarios).findOne({where:{email: req.body.email}});
@@ -109,6 +111,21 @@ export const recuperarPassword = async (req: Request, res: Response): Promise<Re
     enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random);
     console.log(USUARIO);
     return res.json(USUARIO);
+}
+
+//MODIFICA DATOS DEL PERFIL USUARIO
+export const updatePerfil = async (req: Request, res: Response): Promise<Response> =>{
+    if(!req.body.nombre) throw new Exception("Por favor ingrese su nombre");
+    if(!req.body.apellido) throw new Exception("Por favor ingrese su apellido");
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const USUARIO = await getRepository(Usuarios).findOne({where:{id: usuario_id}});
+    if(!USUARIO) throw new Exception("Este usuario no existe");
+    USUARIO.nombre = req.body.nombre;
+    USUARIO.apellido = req.body.apellido;
+    await getRepository(Usuarios).save(USUARIO);
+    console.log(USUARIO);
+    return res.json({message: "Ok", usuario: USUARIO});
 }
 
 //CREA UNA PUBLICACION
@@ -169,7 +186,7 @@ export const updatePublicacion = async (req: Request, res: Response): Promise<Re
     return res.json({ message: "Ok", publicacion: PUBLICACION});
 }
 
-//BORRA PERSONAJE FAVORITO
+//BORRA PUBLICACION DE UN USUARIO
 export const deletePublicacion = async (req: Request, res: Response): Promise<Response> => {
    //Obtengo id del usuario desde el token
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
