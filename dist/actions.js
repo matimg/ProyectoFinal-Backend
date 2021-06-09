@@ -252,15 +252,19 @@ var crearPublicacion = function (req, res) { return __awaiter(void 0, void 0, vo
                     throw new utils_1.Exception("Por favor ingrese un título");
                 if (!req.body.descripcion)
                     throw new utils_1.Exception("Por favor ingrese una descripción");
-                //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+                if (!req.body.url)
+                    throw new utils_1.Exception("Por favor ingrese una imagen");
                 if (!req.body.categoria)
                     throw new utils_1.Exception("Por favor ingrese una categoría");
+                if (!req.body.formato)
+                    throw new utils_1.Exception("Por favor ingrese un formato");
                 usuario_id = req.user.USUARIO.id;
                 PUBLICACION = new Publicaciones_1.Publicaciones();
                 PUBLICACION.titulo = req.body.titulo;
                 PUBLICACION.descripcion = req.body.descripcion;
                 PUBLICACION.url = req.body.url;
                 PUBLICACION.categoria = req.body.categoria;
+                PUBLICACION.formato = req.body.formato;
                 PUBLICACION.usuario = usuario_id; //Relaciono al usuario logueado
                 nuevaPublicacion = typeorm_1.getRepository(Publicaciones_1.Publicaciones).create(PUBLICACION);
                 return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).save(nuevaPublicacion)];
@@ -302,7 +306,10 @@ var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, v
                     throw new utils_1.Exception("Por favor ingrese un título");
                 if (!req.body.descripcion)
                     throw new utils_1.Exception("Por favor ingrese una descripción");
-                //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+                if (!req.body.url)
+                    throw new utils_1.Exception("Por favor ingrese una imagen");
+                if (!req.body.formato)
+                    throw new utils_1.Exception("Por favor ingrese un formato");
                 if (!req.body.categoria)
                     throw new utils_1.Exception("Por favor ingrese una categoría");
                 usuario_id = req.user.USUARIO.id;
@@ -315,6 +322,7 @@ var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, v
                 PUBLICACION.descripcion = req.body.descripcion;
                 PUBLICACION.url = req.body.url;
                 PUBLICACION.categoria = req.body.categoria;
+                PUBLICACION.formato = req.body.formato;
                 return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).save(PUBLICACION)];
             case 2:
                 _a.sent();

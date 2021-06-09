@@ -133,8 +133,9 @@ export const crearPublicacion = async (req: Request, res: Response): Promise<Res
     //Valida campos del body
     if(!req.body.titulo) throw new Exception("Por favor ingrese un título");
     if(!req.body.descripcion) throw new Exception("Por favor ingrese una descripción");
-    //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+    if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
     if(!req.body.categoria) throw new Exception("Por favor ingrese una categoría");
+    if(!req.body.formato) throw new Exception("Por favor ingrese un formato");
 
     //Obtengo id del usuario desde el token
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
@@ -145,6 +146,7 @@ export const crearPublicacion = async (req: Request, res: Response): Promise<Res
     PUBLICACION.descripcion = req.body.descripcion;
     PUBLICACION.url = req.body.url;
     PUBLICACION.categoria = req.body.categoria;
+    PUBLICACION.formato = req.body.formato;
     PUBLICACION.usuario = usuario_id; //Relaciono al usuario logueado
     const nuevaPublicacion = getRepository(Publicaciones).create(PUBLICACION);  //Creo la publicacion
     const results = await getRepository(Publicaciones).save(nuevaPublicacion); //Grabo la nueva publicacion
@@ -170,7 +172,8 @@ export const updatePublicacion = async (req: Request, res: Response): Promise<Re
     //Valida campos del body
     if(!req.body.titulo) throw new Exception("Por favor ingrese un título");
     if(!req.body.descripcion) throw new Exception("Por favor ingrese una descripción");
-    //if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+    if(!req.body.url) throw new Exception("Por favor ingrese una imagen");
+    if(!req.body.formato) throw new Exception("Por favor ingrese un formato");
     if(!req.body.categoria) throw new Exception("Por favor ingrese una categoría");
 
     //Obtengo id del usuario desde el token
@@ -182,6 +185,7 @@ export const updatePublicacion = async (req: Request, res: Response): Promise<Re
     PUBLICACION.descripcion = req.body.descripcion;
     PUBLICACION.url = req.body.url;
     PUBLICACION.categoria = req.body.categoria;
+    PUBLICACION.formato = req.body.formato;
     await getRepository(Publicaciones).save(PUBLICACION);
     return res.json({ message: "Ok", publicacion: PUBLICACION});
 }
