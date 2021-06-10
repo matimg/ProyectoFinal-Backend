@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 
-export const enviarMail = async (email:string, nombre:string, tipo: string, pass: string ) => {
+export const enviarMail = async (email:string, nombre:string, tipo: string, pass: string, id:number ) => {
+    console.log(id);
     var plantilla = '';
     var link = '';
     switch (tipo) {
         case 'Verificar usuario':
             plantilla = 'verificacion.html';
-            link = '/verificacion/'+email;
+            link = '/verificacion/'+id;
             break;
     
         case 'Recuperar contraseña':

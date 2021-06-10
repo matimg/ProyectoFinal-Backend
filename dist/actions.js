@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.deletePublicacion = exports.updatePublicacion = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -65,6 +65,8 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 USUARIO = _a.sent();
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
+                if (!USUARIO.activo)
+                    throw new utils_1.Exception("EL usuario todavia no esta activo");
                 token = '';
                 return [4 /*yield*/, bcrypt.compare(req.body.password, USUARIO.password)];
             case 3:
@@ -72,7 +74,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 validacionPassword ? token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY) : token = 'Invalid password';
                 if (token === 'Invalid password')
                     throw new utils_1.Exception("Contraseña incorrecta");
-                return [2 /*return*/, res.json({ message: "OK", token: token, usuario: USUARIO })];
+                return [2 /*return*/, res.json({ message: "Ok", token: token, usuario: USUARIO })];
         }
     });
 }); };
@@ -128,7 +130,7 @@ var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0
                                     return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(nuevoUsuario)];
                                 case 1:
                                     results = _a.sent();
-                                    controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
+                                    controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', '', results.id); //Envía email de confirmacion
                                     return [2 /*return*/];
                             }
                         });
@@ -156,7 +158,7 @@ var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 
     var USUARIO;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { email: req.params.email } })];
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { id: req.params.id } })];
             case 1:
                 USUARIO = _a.sent();
                 if (!USUARIO)
@@ -166,11 +168,31 @@ var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 
             case 2:
                 _a.sent();
                 console.log(USUARIO);
-                return [2 /*return*/, res.json(USUARIO)];
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
 exports.updateUsuario = updateUsuario;
+//BORRA USUARIO
+var deleteUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuarioRepo, USUARIO, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuarioRepo = typeorm_1.getRepository(Usuarios_1.Usuarios);
+                return [4 /*yield*/, usuarioRepo.findOne({ where: { id: req.params.id } })];
+            case 1:
+                USUARIO = _a.sent();
+                if (!USUARIO)
+                    throw new utils_1.Exception("El usuario no existe");
+                return [4 /*yield*/, usuarioRepo["delete"](USUARIO)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
+        }
+    });
+}); };
+exports.deleteUsuario = deleteUsuario;
 //ENVÍA EMAIL CON UNA NUEVA CONTRASEÑA RANDOM
 var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var USUARIO, random;
@@ -207,9 +229,8 @@ var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, v
                         });
                     }); });
                 });
-                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random);
-                console.log(USUARIO);
-                return [2 /*return*/, res.json(USUARIO)];
+                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random, USUARIO.id);
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
@@ -295,6 +316,32 @@ var getPublicacionesUsuario = function (req, res) { return __awaiter(void 0, voi
     });
 }); };
 exports.getPublicacionesUsuario = getPublicacionesUsuario;
+//OBTIENE TODAS LAS PUBLICACIONES DE TODOS LOS USUARIOS
+var getAllPublicaciones = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var OFFSET, PUBLICACIONES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!req.body.offset)
+                    throw new utils_1.Exception("Por favor ingrese un offset");
+                OFFSET = parseInt(req.body.offset);
+                if (OFFSET > 0) {
+                    OFFSET += 15;
+                }
+                console.log(OFFSET);
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                        .createQueryBuilder("Publicaciones")
+                        .limit(15)
+                        .offset(OFFSET)
+                        //.orderBy("id", "DESC")
+                        .getMany()];
+            case 1:
+                PUBLICACIONES = _a.sent();
+                return [2 /*return*/, res.json(PUBLICACIONES)];
+        }
+    });
+}); };
+exports.getAllPublicaciones = getAllPublicaciones;
 //MODIFICA PUBLICACION DE UN USUARIO
 var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var usuario_id, PUBLICACION;

@@ -27,9 +27,12 @@ router.get('/usuarios',safe(actions.getUSuarios));
 router.post('/email', safe(enviarMail))
 
 //ACTIVA UN USUARIO
-router.put('/verificar/:email', safe(actions.updateUsuario))
+router.put('/verificar/:id', safe(actions.updateUsuario));
+
+//ELIMINA UN USUARIO
+router.delete('/usuarios/:id', safe(actions.deleteUsuario));
 
 // RECUPERAR PASSWORD
-router.put('/recuperar', safe(actions.recuperarPassword))
+router.put('/recuperar', safe(actions.recuperarPassword));
 
 export default router;
