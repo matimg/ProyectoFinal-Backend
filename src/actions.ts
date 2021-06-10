@@ -118,8 +118,7 @@ export const recuperarPassword = async (req: Request, res: Response): Promise<Re
     })
 
     enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random, USUARIO.id);
-    console.log(USUARIO);
-    return res.json(USUARIO);
+    return res.json({message: "Ok", usuario: USUARIO});
 }
 
 //MODIFICA DATOS DEL PERFIL USUARIO

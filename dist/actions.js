@@ -230,8 +230,7 @@ var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, v
                     }); });
                 });
                 controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random, USUARIO.id);
-                console.log(USUARIO);
-                return [2 /*return*/, res.json(USUARIO)];
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
