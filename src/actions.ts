@@ -175,6 +175,23 @@ export const getPublicacionesUsuario = async (req: Request, res: Response): Prom
     return res.json(PUBLICACIONES);
 }
 
+//OBTIENE TODAS LAS PUBLICACIONES DE TODOS LOS USUARIOS
+export const getAllPublicaciones = async (req: Request, res: Response): Promise<Response> => {
+    if(!req.body.offset) throw new Exception("Por favor ingrese un offset");
+    let OFFSET = parseInt(req.body.offset);
+    if(OFFSET > 0){
+        OFFSET += 15;
+    }
+    console.log(OFFSET);
+    const PUBLICACIONES = await getRepository(Publicaciones)
+    .createQueryBuilder("Publicaciones")
+    .limit(15)
+    .offset(OFFSET)
+    //.orderBy("id", "DESC")
+    .getMany();
+    return res.json(PUBLICACIONES);
+}
+
 //MODIFICA PUBLICACION DE UN USUARIO
 export const updatePublicacion = async (req: Request, res: Response): Promise<Response> =>{
     //Valida campos del body

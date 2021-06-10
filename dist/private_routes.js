@@ -54,6 +54,8 @@ var verifyToken = function (req, res, next) {
 router.put('/usuarios/', verifyToken, utils_1.safe(actions.updatePerfil));
 //LISTA PUBLICACIONES DE UN USUARIO
 router.get('/usuarios/publicaciones', verifyToken, utils_1.safe(actions.getPublicacionesUsuario));
+//LISTA PUBLICACIONES DE TODOS LOS USUARIO
+router.get('/allPublicaciones', verifyToken, utils_1.safe(actions.getAllPublicaciones));
 //PUBLICAR
 router.post('/usuarios/publicaciones', verifyToken, utils_1.safe(actions.crearPublicacion));
 //MODIFICA UNA PUBLICACION DE UN USUARIO
