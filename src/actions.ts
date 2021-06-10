@@ -18,15 +18,14 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     const usuariosRepo = await getRepository(Usuarios);
     const USUARIO = await usuariosRepo.findOne({ where: { email: req.body.email } });
     if (!USUARIO) throw new Exception("El email o la contraseña es inválida", 401);
-
-    //if(!USUARIO.activo) throw new Exception("EL usuario todavia no esta activo");
+    if(!USUARIO.activo) throw new Exception("EL usuario todavia no esta activo");
 
     let token = '';
     const validacionPassword = await bcrypt.compare(req.body.password, USUARIO.password)
         validacionPassword ?  token = jwt.sign({ USUARIO }, process.env.JWT_KEY as string) : token = 'Invalid password'
     if(token === 'Invalid password') throw new Exception("Contraseña incorrecta");
        
-    return res.json({ message: "OK", token, usuario: USUARIO});
+    return res.json({ message: "Ok", token, usuario: USUARIO});
 
   
 }
@@ -65,7 +64,7 @@ export const crearUsuario = async (req: Request, res:Response): Promise<Response
             USUARIO.password = hash;
             const nuevoUsuario = getRepository(Usuarios).create(USUARIO);  //Creo un usuario
             const results = await getRepository(Usuarios).save(nuevoUsuario); //Grabo el nuevo usuario 
-            enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
+            enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', '', results.id); //Envía email de confirmacion
         })
     })
 	return res.json({ message: "Ok", usuario: USUARIO});
@@ -78,12 +77,22 @@ export const getUSuarios = async (req: Request, res: Response): Promise<Response
 
 //ACTIVA AL USUARIO
 export const updateUsuario = async (req: Request, res: Response): Promise<Response> =>{
-    const USUARIO = await getRepository(Usuarios).findOne({where:{email: req.params.email}});
+    const USUARIO = await getRepository(Usuarios).findOne({where:{id: req.params.id}});
     if(!USUARIO) throw new Exception("Este usuario no existe");
     USUARIO.activo = true;
     await getRepository(Usuarios).save(USUARIO);
     console.log(USUARIO);
-    return res.json(USUARIO);
+    return res.json({ message: "Ok", usuario: USUARIO});
+}
+
+//BORRA USUARIO
+export const deleteUsuario = async (req: Request, res: Response): Promise<Response> => {
+    const usuarioRepo = getRepository(Usuarios);
+    const USUARIO = await usuarioRepo.findOne({where:{id: req.params.id}});
+    if(!USUARIO) throw new Exception("El usuario no existe");
+
+    const result = await usuarioRepo.delete(USUARIO);
+    return res.json({message: "Ok", result: result});
 }
 
 //ENVÍA EMAIL CON UNA NUEVA CONTRASEÑA RANDOM
@@ -108,7 +117,7 @@ export const recuperarPassword = async (req: Request, res: Response): Promise<Re
         })
     })
 
-    enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random);
+    enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random, USUARIO.id);
     console.log(USUARIO);
     return res.json(USUARIO);
 }
