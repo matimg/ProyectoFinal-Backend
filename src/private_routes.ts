@@ -35,7 +35,7 @@ router.put('/usuarios/',verifyToken, safe(actions.updatePerfil));
 //LISTA PUBLICACIONES DE UN USUARIO
 router.get('/usuarios/publicaciones',verifyToken, safe(actions.getPublicacionesUsuario));
 //LISTA PUBLICACIONES DE TODOS LOS USUARIO
-router.get('/allPublicaciones',verifyToken, safe(actions.getAllPublicaciones));
+router.get('/allPublicaciones/:offset',verifyToken, safe(actions.getAllPublicaciones));
 //PUBLICAR
 router.post('/usuarios/publicaciones',verifyToken, safe(actions.crearPublicacion));
 //MODIFICA UNA PUBLICACION DE UN USUARIO
