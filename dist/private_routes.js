@@ -62,4 +62,6 @@ router.post('/usuarios/publicaciones', verifyToken, utils_1.safe(actions.crearPu
 router.put('/usuarios/publicaciones/:id', verifyToken, utils_1.safe(actions.updatePublicacion));
 //MODIFICA UNA PUBLICACION DE UN USUARIO
 router["delete"]('/usuarios/publicaciones/:id', verifyToken, utils_1.safe(actions.deletePublicacion));
+//AGREGAR FAVORITO
+router.post('/favorito', verifyToken, utils_1.safe(actions.agregarFavorito));
 exports["default"] = router;

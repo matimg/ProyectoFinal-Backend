@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { enviarMail } from './email/controlador';
 import { runInNewContext } from 'vm';
 import { Publicaciones } from './entities/Publicaciones';
+import { Favoritos } from './entities/Favoritos';
 
 const bcrypt = require('bcrypt');
 
@@ -225,6 +226,23 @@ export const deletePublicacion = async (req: Request, res: Response): Promise<Re
 
     const result = await publicacionRepo.delete(PUBLICACION);
     return res.json({message: "Ok", result: result});
+}
+
+//AGREGAR FAVORITO
+export const agregarFavorito = async (req: Request, res: Response): Promise<Response> => {
+    //Valida campos del body
+    if(!req.body.idPublicacion) throw new Exception("Por favor ingrese una publicación");
+
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+
+    //Creo una instancia de favorito
+    const FAVORITO = new Favoritos();
+    FAVORITO.usuario = usuario_id;
+    FAVORITO.publicaciones = req.body.idPublicacion;
+    const nuevoFavorito = getRepository(Favoritos).create(FAVORITO);  //Creo la publicacion
+    const results = await getRepository(Favoritos).save(nuevoFavorito); //Grabo la nueva publicacion
+    return res.json({ message: "Ok", favorito: results});
 }
 
 
