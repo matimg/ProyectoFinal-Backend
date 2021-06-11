@@ -177,10 +177,10 @@ export const getPublicacionesUsuario = async (req: Request, res: Response): Prom
 
 //OBTIENE TODAS LAS PUBLICACIONES DE TODOS LOS USUARIOS
 export const getAllPublicaciones = async (req: Request, res: Response): Promise<Response> => {
-    if(!req.body.offset) throw new Exception("Por favor ingrese un offset");
-    let OFFSET = parseInt(req.body.offset);
+    if(!req.params.offset) throw new Exception("Por favor ingrese un offset");
+    let OFFSET = parseInt(req.params.offset);
     if(OFFSET > 0){
-        OFFSET += 15;
+        OFFSET +=  14;
     }
     console.log(OFFSET);
     const PUBLICACIONES = await getRepository(Publicaciones)

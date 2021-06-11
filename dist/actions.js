@@ -322,11 +322,11 @@ var getAllPublicaciones = function (req, res) { return __awaiter(void 0, void 0,
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!req.body.offset)
+                if (!req.params.offset)
                     throw new utils_1.Exception("Por favor ingrese un offset");
-                OFFSET = parseInt(req.body.offset);
+                OFFSET = parseInt(req.params.offset);
                 if (OFFSET > 0) {
-                    OFFSET += 15;
+                    OFFSET += 14;
                 }
                 console.log(OFFSET);
                 return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
