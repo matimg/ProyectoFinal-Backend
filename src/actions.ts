@@ -180,14 +180,14 @@ export const getAllPublicaciones = async (req: Request, res: Response): Promise<
     if(!req.params.offset) throw new Exception("Por favor ingrese un offset");
     let OFFSET = parseInt(req.params.offset);
     if(OFFSET > 0){
-        OFFSET +=  14;
+        OFFSET *=  15;
     }
     console.log(OFFSET);
     const PUBLICACIONES = await getRepository(Publicaciones)
     .createQueryBuilder("Publicaciones")
     .limit(15)
     .offset(OFFSET)
-    //.orderBy("id", "DESC")
+    .orderBy("id", "DESC")
     .getMany();
     return res.json(PUBLICACIONES);
 }

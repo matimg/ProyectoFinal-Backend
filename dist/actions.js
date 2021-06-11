@@ -326,14 +326,14 @@ var getAllPublicaciones = function (req, res) { return __awaiter(void 0, void 0,
                     throw new utils_1.Exception("Por favor ingrese un offset");
                 OFFSET = parseInt(req.params.offset);
                 if (OFFSET > 0) {
-                    OFFSET += 14;
+                    OFFSET *= 15;
                 }
                 console.log(OFFSET);
                 return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
                         .createQueryBuilder("Publicaciones")
                         .limit(15)
                         .offset(OFFSET)
-                        //.orderBy("id", "DESC")
+                        .orderBy("id", "DESC")
                         .getMany()];
             case 1:
                 PUBLICACIONES = _a.sent();
