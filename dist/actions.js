@@ -39,13 +39,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.deletePublicacion = exports.updatePublicacion = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var controlador_1 = require("./email/controlador");
 var Publicaciones_1 = require("./entities/Publicaciones");
+var Favoritos_1 = require("./entities/Favoritos");
 var bcrypt = require('bcrypt');
 //LOGIN- DEVUELVE UN TOKEN DE AUTORIZACION AL USUARIO
 var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -326,14 +327,14 @@ var getAllPublicaciones = function (req, res) { return __awaiter(void 0, void 0,
                     throw new utils_1.Exception("Por favor ingrese un offset");
                 OFFSET = parseInt(req.params.offset);
                 if (OFFSET > 0) {
-                    OFFSET += 14;
+                    OFFSET *= 15;
                 }
                 console.log(OFFSET);
                 return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
                         .createQueryBuilder("Publicaciones")
                         .limit(15)
                         .offset(OFFSET)
-                        //.orderBy("id", "DESC")
+                        .orderBy("id", "DESC")
                         .getMany()];
             case 1:
                 PUBLICACIONES = _a.sent();
@@ -399,3 +400,67 @@ var deletePublicacion = function (req, res) { return __awaiter(void 0, void 0, v
     });
 }); };
 exports.deletePublicacion = deletePublicacion;
+//AGREGAR FAVORITO
+var agregarFavorito = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, FAVORITO, nuevoFavorito, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                //Valida campos del body
+                if (!req.body.idPublicacion)
+                    throw new utils_1.Exception("Por favor ingrese una publicación");
+                usuario_id = req.user.USUARIO.id;
+                FAVORITO = new Favoritos_1.Favoritos();
+                FAVORITO.usuario = usuario_id;
+                FAVORITO.publicaciones = req.body.idPublicacion;
+                nuevoFavorito = typeorm_1.getRepository(Favoritos_1.Favoritos).create(FAVORITO);
+                return [4 /*yield*/, typeorm_1.getRepository(Favoritos_1.Favoritos).save(nuevoFavorito)];
+            case 1:
+                results = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", favorito: results })];
+        }
+    });
+}); };
+exports.agregarFavorito = agregarFavorito;
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+var getFavoritosUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, FAVORITOS;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Favoritos_1.Favoritos)
+                        .createQueryBuilder("Favoritos")
+                        .leftJoinAndSelect('Favoritos.publicaciones', 'Publicaciones')
+                        .where("Favoritos.usuario = :id", { id: usuario_id })
+                        .orderBy("Favoritos.id", "DESC")
+                        .getMany()];
+            case 1:
+                FAVORITOS = _a.sent();
+                console.log(FAVORITOS);
+                return [2 /*return*/, res.json(FAVORITOS)];
+        }
+    });
+}); };
+exports.getFavoritosUsuario = getFavoritosUsuario;
+//BORRA FAVORITO DE UN USUARIO
+var deleteFavorito = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, favoritoRepo, FAVORITO, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                favoritoRepo = typeorm_1.getRepository(Favoritos_1.Favoritos);
+                return [4 /*yield*/, favoritoRepo.findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                FAVORITO = _a.sent();
+                if (!FAVORITO)
+                    throw new utils_1.Exception("El favorito no existe");
+                return [4 /*yield*/, favoritoRepo["delete"](FAVORITO)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
+        }
+    });
+}); };
+exports.deleteFavorito = deleteFavorito;

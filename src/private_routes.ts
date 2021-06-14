@@ -40,7 +40,13 @@ router.get('/allPublicaciones/:offset',verifyToken, safe(actions.getAllPublicaci
 router.post('/usuarios/publicaciones',verifyToken, safe(actions.crearPublicacion));
 //MODIFICA UNA PUBLICACION DE UN USUARIO
 router.put('/usuarios/publicaciones/:id',verifyToken, safe(actions.updatePublicacion));
-//MODIFICA UNA PUBLICACION DE UN USUARIO
+//ELIMINA UNA PUBLICACION DE UN USUARIO
 router.delete('/usuarios/publicaciones/:id',verifyToken, safe(actions.deletePublicacion));
+//AGREGAR FAVORITO
+router.post('/favorito',verifyToken, safe(actions.agregarFavorito));
+//LISTA FAVORITOS DE UN USUARIO
+router.get('/favoritos',verifyToken, safe(actions.getFavoritosUsuario));
+//ELIMINA UNA PUBLICACION DE UN USUARIO
+router.delete('/favorito/:id',verifyToken, safe(actions.deleteFavorito));
 
 export default router;

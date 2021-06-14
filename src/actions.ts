@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { enviarMail } from './email/controlador';
 import { runInNewContext } from 'vm';
 import { Publicaciones } from './entities/Publicaciones';
+import { Favoritos } from './entities/Favoritos';
 
 const bcrypt = require('bcrypt');
 
@@ -180,14 +181,14 @@ export const getAllPublicaciones = async (req: Request, res: Response): Promise<
     if(!req.params.offset) throw new Exception("Por favor ingrese un offset");
     let OFFSET = parseInt(req.params.offset);
     if(OFFSET > 0){
-        OFFSET +=  14;
+        OFFSET *=  15;
     }
     console.log(OFFSET);
     const PUBLICACIONES = await getRepository(Publicaciones)
     .createQueryBuilder("Publicaciones")
     .limit(15)
     .offset(OFFSET)
-    //.orderBy("id", "DESC")
+    .orderBy("id", "DESC")
     .getMany();
     return res.json(PUBLICACIONES);
 }
@@ -224,6 +225,50 @@ export const deletePublicacion = async (req: Request, res: Response): Promise<Re
     if(!PUBLICACION) throw new Exception("La publicación no existe");
 
     const result = await publicacionRepo.delete(PUBLICACION);
+    return res.json({message: "Ok", result: result});
+}
+
+//AGREGAR FAVORITO
+export const agregarFavorito = async (req: Request, res: Response): Promise<Response> => {
+    //Valida campos del body
+    if(!req.body.idPublicacion) throw new Exception("Por favor ingrese una publicación");
+
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+
+    //Creo una instancia de favorito
+    const FAVORITO = new Favoritos();
+    FAVORITO.usuario = usuario_id;
+    FAVORITO.publicaciones = req.body.idPublicacion;
+    const nuevoFavorito = getRepository(Favoritos).create(FAVORITO);  //Creo la publicacion
+    const results = await getRepository(Favoritos).save(nuevoFavorito); //Grabo la nueva publicacion
+    return res.json({ message: "Ok", favorito: results});
+}
+
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+export const getFavoritosUsuario = async (req: Request, res: Response): Promise<Response> => {
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const FAVORITOS = await getRepository(Favoritos)
+    .createQueryBuilder("Favoritos")
+    .leftJoinAndSelect('Favoritos.publicaciones', 'Publicaciones')
+    .where("Favoritos.usuario = :id", {id: usuario_id})
+    .orderBy("Favoritos.id", "DESC")
+    .getMany();
+
+    console.log(FAVORITOS);
+    return res.json(FAVORITOS);
+}
+
+//BORRA FAVORITO DE UN USUARIO
+export const deleteFavorito = async (req: Request, res: Response): Promise<Response> => {
+   //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const favoritoRepo = getRepository(Favoritos);
+    const FAVORITO = await favoritoRepo.findOne({where:{id: req.params.id, usuario: usuario_id}});
+    if(!FAVORITO) throw new Exception("El favorito no existe");
+
+    const result = await favoritoRepo.delete(FAVORITO);
     return res.json({message: "Ok", result: result});
 }
 
