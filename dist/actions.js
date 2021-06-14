@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -422,3 +422,45 @@ var agregarFavorito = function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); };
 exports.agregarFavorito = agregarFavorito;
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+var getFavoritosUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, FAVORITOS;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Favoritos_1.Favoritos)
+                        .createQueryBuilder("Favoritos")
+                        .leftJoinAndSelect('Favoritos.publicaciones', 'Publicaciones')
+                        .where("Favoritos.usuario = :id", { id: usuario_id })
+                        .orderBy("Favoritos.id", "DESC")
+                        .getMany()];
+            case 1:
+                FAVORITOS = _a.sent();
+                console.log(FAVORITOS);
+                return [2 /*return*/, res.json(FAVORITOS)];
+        }
+    });
+}); };
+exports.getFavoritosUsuario = getFavoritosUsuario;
+//BORRA FAVORITO DE UN USUARIO
+var deleteFavorito = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, favoritoRepo, FAVORITO, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                favoritoRepo = typeorm_1.getRepository(Favoritos_1.Favoritos);
+                return [4 /*yield*/, favoritoRepo.findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                FAVORITO = _a.sent();
+                if (!FAVORITO)
+                    throw new utils_1.Exception("El favorito no existe");
+                return [4 /*yield*/, favoritoRepo["delete"](FAVORITO)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
+        }
+    });
+}); };
+exports.deleteFavorito = deleteFavorito;

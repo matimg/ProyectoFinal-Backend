@@ -245,4 +245,31 @@ export const agregarFavorito = async (req: Request, res: Response): Promise<Resp
     return res.json({ message: "Ok", favorito: results});
 }
 
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+export const getFavoritosUsuario = async (req: Request, res: Response): Promise<Response> => {
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const FAVORITOS = await getRepository(Favoritos)
+    .createQueryBuilder("Favoritos")
+    .leftJoinAndSelect('Favoritos.publicaciones', 'Publicaciones')
+    .where("Favoritos.usuario = :id", {id: usuario_id})
+    .orderBy("Favoritos.id", "DESC")
+    .getMany();
+
+    console.log(FAVORITOS);
+    return res.json(FAVORITOS);
+}
+
+//BORRA FAVORITO DE UN USUARIO
+export const deleteFavorito = async (req: Request, res: Response): Promise<Response> => {
+   //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const favoritoRepo = getRepository(Favoritos);
+    const FAVORITO = await favoritoRepo.findOne({where:{id: req.params.id, usuario: usuario_id}});
+    if(!FAVORITO) throw new Exception("El favorito no existe");
+
+    const result = await favoritoRepo.delete(FAVORITO);
+    return res.json({message: "Ok", result: result});
+}
+
 
