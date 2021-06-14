@@ -68,4 +68,10 @@ router.post('/favorito', verifyToken, utils_1.safe(actions.agregarFavorito));
 router.get('/favoritos', verifyToken, utils_1.safe(actions.getFavoritosUsuario));
 //ELIMINA UNA PUBLICACION DE UN USUARIO
 router["delete"]('/favorito/:id', verifyToken, utils_1.safe(actions.deleteFavorito));
+//ENVIA MENSAJE
+router.post('/mensaje', verifyToken, utils_1.safe(actions.enviarMensaje));
+//LISTA CONVERSACION DE UNA PERSONA A OTRA PERSONA
+router.get('/mensajes/:receptor', verifyToken, utils_1.safe(actions.getConversacion));
+//LISTA CONVERSACION DE UNA PERSONA A OTRA PERSONA
+router.get('/publicaciones/:categoria', verifyToken, utils_1.safe(actions.getPublicacionesFiltro));
 exports["default"] = router;
