@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -47,6 +47,7 @@ var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var controlador_1 = require("./email/controlador");
 var Publicaciones_1 = require("./entities/Publicaciones");
 var Favoritos_1 = require("./entities/Favoritos");
+var Mensajes_1 = require("./entities/Mensajes");
 var bcrypt = require('bcrypt');
 //LOGIN- DEVUELVE UN TOKEN DE AUTORIZACION AL USUARIO
 var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -343,6 +344,23 @@ var getAllPublicaciones = function (req, res) { return __awaiter(void 0, void 0,
     });
 }); };
 exports.getAllPublicaciones = getAllPublicaciones;
+//OBTIENE TODAS LAS PUBLICACIONES FILTRADAS POR EL CAMPO
+var getPublicacionesFiltro = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var PUBLICACIONES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                    .createQueryBuilder("Publicaciones")
+                    .where("Publicaciones.categoria = :categoria", { categoria: req.params.categoria })
+                    .orderBy("id", "DESC")
+                    .getMany()];
+            case 1:
+                PUBLICACIONES = _a.sent();
+                return [2 /*return*/, res.json(PUBLICACIONES)];
+        }
+    });
+}); };
+exports.getPublicacionesFiltro = getPublicacionesFiltro;
 //MODIFICA PUBLICACION DE UN USUARIO
 var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var usuario_id, PUBLICACION;
@@ -464,3 +482,48 @@ var deleteFavorito = function (req, res) { return __awaiter(void 0, void 0, void
     });
 }); };
 exports.deleteFavorito = deleteFavorito;
+//ENVIAR MENSAJE
+var enviarMensaje = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var emisor_id, MENSAJE, nuevoMensaje, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                emisor_id = req.user.USUARIO.id;
+                MENSAJE = new Mensajes_1.Mensajes();
+                MENSAJE.usuarioEmisor = emisor_id.toString();
+                MENSAJE.usuarioReceptor = req.body.receptor;
+                MENSAJE.asunto = req.body.asunto;
+                MENSAJE.mensaje = req.body.mensaje;
+                console.log(MENSAJE);
+                nuevoMensaje = typeorm_1.getRepository(Mensajes_1.Mensajes).create(MENSAJE);
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes).save(nuevoMensaje)];
+            case 1:
+                results = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", mensaje: results })];
+        }
+    });
+}); };
+exports.enviarMensaje = enviarMensaje;
+//TRAER CONVERSACION
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+var getConversacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, MENSAJES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
+                        .createQueryBuilder("Mensajes")
+                        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+                        .andWhere("Mensajes.usuarioEmisor = :id", { id: req.params.receptor })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: req.params.receptor })
+                        .orderBy("Mensajes.id", "DESC")
+                        .getMany()];
+            case 1:
+                MENSAJES = _a.sent();
+                return [2 /*return*/, res.json(MENSAJES)];
+        }
+    });
+}); };
+exports.getConversacion = getConversacion;

@@ -7,6 +7,7 @@ import { enviarMail } from './email/controlador';
 import { runInNewContext } from 'vm';
 import { Publicaciones } from './entities/Publicaciones';
 import { Favoritos } from './entities/Favoritos';
+import { Mensajes } from './entities/Mensajes';
 
 const bcrypt = require('bcrypt');
 
@@ -193,6 +194,16 @@ export const getAllPublicaciones = async (req: Request, res: Response): Promise<
     return res.json(PUBLICACIONES);
 }
 
+//OBTIENE TODAS LAS PUBLICACIONES FILTRADAS POR EL CAMPO
+export const getPublicacionesFiltro = async (req: Request, res: Response): Promise<Response> => {
+    const PUBLICACIONES = await getRepository(Publicaciones)
+    .createQueryBuilder("Publicaciones")
+    .where("Publicaciones.categoria = :categoria", {categoria: req.params.categoria})
+    .orderBy("id", "DESC")
+    .getMany();
+    return res.json(PUBLICACIONES);
+}
+
 //MODIFICA PUBLICACION DE UN USUARIO
 export const updatePublicacion = async (req: Request, res: Response): Promise<Response> =>{
     //Valida campos del body
@@ -272,4 +283,36 @@ export const deleteFavorito = async (req: Request, res: Response): Promise<Respo
     return res.json({message: "Ok", result: result});
 }
 
+//ENVIAR MENSAJE
+export const enviarMensaje = async (req: Request, res: Response): Promise<Response> => {
+   //Obtengo id del usuario desde el token
+    const emisor_id = (req.user as ObjectLiteral).USUARIO.id;
+    let MENSAJE = new Mensajes();
+    MENSAJE.usuarioEmisor = emisor_id.toString();
+    MENSAJE.usuarioReceptor = req.body.receptor;
+    MENSAJE.asunto = req.body.asunto;
+    MENSAJE.mensaje = req.body.mensaje;
+    console.log(MENSAJE);
+
+    const nuevoMensaje = getRepository(Mensajes).create(MENSAJE);  //Creo mensaje
+    const results = await getRepository(Mensajes).save(nuevoMensaje); //Grabo mensaje
+    return res.json({ message: "Ok", mensaje: results});
+}
+
+//TRAER CONVERSACION
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+export const getConversacion = async (req: Request, res: Response): Promise<Response> => {
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const MENSAJES = await getRepository(Mensajes)
+    .createQueryBuilder("Mensajes")
+    .where("Mensajes.usuarioEmisor = :id", {id: usuario_id})
+    .orWhere("Mensajes.usuarioReceptor = :id", {id: usuario_id})
+    .andWhere("Mensajes.usuarioEmisor = :id", {id: req.params.receptor})
+    .orWhere("Mensajes.usuarioReceptor = :id", {id: req.params.receptor})
+    .orderBy("Mensajes.id", "DESC")
+    .getMany();
+
+    return res.json(MENSAJES);
+}
 
