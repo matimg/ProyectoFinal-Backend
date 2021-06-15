@@ -247,6 +247,8 @@ var updatePerfil = function (req, res) { return __awaiter(void 0, void 0, void 0
                     throw new utils_1.Exception("Por favor ingrese su nombre");
                 if (!req.body.apellido)
                     throw new utils_1.Exception("Por favor ingrese su apellido");
+                if (!req.body.password)
+                    throw new utils_1.Exception("Por favor ingrese su contraseña");
                 usuario_id = req.user.USUARIO.id;
                 return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { id: usuario_id } })];
             case 1:
@@ -255,10 +257,29 @@ var updatePerfil = function (req, res) { return __awaiter(void 0, void 0, void 0
                     throw new utils_1.Exception("Este usuario no existe");
                 USUARIO.nombre = req.body.nombre;
                 USUARIO.apellido = req.body.apellido;
-                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
-            case 2:
-                _a.sent();
-                console.log(USUARIO);
+                if (req.body.password != "") {
+                    bcrypt.genSalt(10, function (err, salt) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        bcrypt.hash(req.body.password, salt, function (err, hash) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (err) {
+                                            console.log(err);
+                                        }
+                                        //GUARDAR EN BASE DE DATOS
+                                        USUARIO.password = hash;
+                                        return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                    });
+                }
                 return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
