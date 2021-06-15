@@ -54,5 +54,7 @@ router.post('/mensaje',verifyToken, safe(actions.enviarMensaje));
 router.get('/mensajes/:receptor',verifyToken, safe(actions.getConversacion));
 //LISTA CONVERSACION DE UNA PERSONA A OTRA PERSONA
 router.get('/publicaciones/:categoria',verifyToken, safe(actions.getPublicacionesFiltro));
+//LISTA DETALLE DE UNA PUBLICACION
+router.get('/publicacion/detalle/:idPublicacion',verifyToken, safe(actions.getPublicacionDetalle));
 
 export default router;

@@ -20,7 +20,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     const usuariosRepo = await getRepository(Usuarios);
     const USUARIO = await usuariosRepo.findOne({ where: { email: req.body.email } });
     if (!USUARIO) throw new Exception("El email o la contraseña es inválida", 401);
-    if (!USUARIO.activo) throw new Exception("EL usuario todavia no esta activo");
+    if (!USUARIO.activo) throw new Exception("El usuario todavia no esta activo");
 
     let token = '';
     const validacionPassword = await bcrypt.compare(req.body.password, USUARIO.password)
@@ -328,5 +328,14 @@ export const getConversacion = async (req: Request, res: Response): Promise<Resp
         .getMany();
 
     return res.json(MENSAJES);
+}
+//OBTIENE TODAS LA INFORMACION DE UNA PUBLICACION
+export const getPublicacionDetalle = async (req: Request, res: Response): Promise<Response> => {
+    const PUBLICACION = await getRepository(Publicaciones)
+        .createQueryBuilder("Publicaciones")
+        .leftJoinAndSelect('Publicaciones.usuario', 'Usuarios')
+        .where("Publicaciones.id = :id", { id: req.params.idPublicacion })
+        .getOne();
+    return res.json({message: "Ok", publicacion: PUBLICACION});
 }
 

@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.getPublicacionDetalle = exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -68,7 +68,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
                 if (!USUARIO.activo)
-                    throw new utils_1.Exception("EL usuario todavia no esta activo");
+                    throw new utils_1.Exception("El usuario todavia no esta activo");
                 token = '';
                 return [4 /*yield*/, bcrypt.compare(req.body.password, USUARIO.password)];
             case 3:
@@ -548,3 +548,20 @@ var getConversacion = function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); };
 exports.getConversacion = getConversacion;
+//OBTIENE TODAS LA INFORMACION DE UNA PUBLICACION
+var getPublicacionDetalle = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var PUBLICACION;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                    .createQueryBuilder("Publicaciones")
+                    .leftJoinAndSelect('Publicaciones.usuario', 'Usuarios')
+                    .where("Publicaciones.id = :id", { id: req.params.idPublicacion })
+                    .getOne()];
+            case 1:
+                PUBLICACION = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
+        }
+    });
+}); };
+exports.getPublicacionDetalle = getPublicacionDetalle;
