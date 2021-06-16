@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.getPublicacionDetalle = exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -68,7 +68,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
                 if (!USUARIO.activo)
-                    throw new utils_1.Exception("EL usuario todavia no esta activo");
+                    throw new utils_1.Exception("El usuario todavia no esta activo");
                 token = '';
                 return [4 /*yield*/, bcrypt.compare(req.body.password, USUARIO.password)];
             case 3:
@@ -247,6 +247,8 @@ var updatePerfil = function (req, res) { return __awaiter(void 0, void 0, void 0
                     throw new utils_1.Exception("Por favor ingrese su nombre");
                 if (!req.body.apellido)
                     throw new utils_1.Exception("Por favor ingrese su apellido");
+                if (!req.body.password)
+                    throw new utils_1.Exception("Por favor ingrese su contraseña");
                 usuario_id = req.user.USUARIO.id;
                 return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { id: usuario_id } })];
             case 1:
@@ -255,10 +257,29 @@ var updatePerfil = function (req, res) { return __awaiter(void 0, void 0, void 0
                     throw new utils_1.Exception("Este usuario no existe");
                 USUARIO.nombre = req.body.nombre;
                 USUARIO.apellido = req.body.apellido;
-                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
-            case 2:
-                _a.sent();
-                console.log(USUARIO);
+                if (req.body.password != "") {
+                    bcrypt.genSalt(10, function (err, salt) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        bcrypt.hash(req.body.password, salt, function (err, hash) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (err) {
+                                            console.log(err);
+                                        }
+                                        //GUARDAR EN BASE DE DATOS
+                                        USUARIO.password = hash;
+                                        return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                    });
+                }
                 return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
@@ -514,11 +535,12 @@ var getConversacion = function (req, res) { return __awaiter(void 0, void 0, voi
                 usuario_id = req.user.USUARIO.id;
                 return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
                         .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
                         .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
                         .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
                         .andWhere("Mensajes.usuarioEmisor = :id", { id: req.params.receptor })
                         .orWhere("Mensajes.usuarioReceptor = :id", { id: req.params.receptor })
-                        .orderBy("Mensajes.id", "DESC")
+                        .orderBy("Mensajes.id", "ASC")
                         .getMany()];
             case 1:
                 MENSAJES = _a.sent();
@@ -527,3 +549,20 @@ var getConversacion = function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); };
 exports.getConversacion = getConversacion;
+//OBTIENE TODAS LA INFORMACION DE UNA PUBLICACION
+var getPublicacionDetalle = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var PUBLICACION;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                    .createQueryBuilder("Publicaciones")
+                    .leftJoinAndSelect('Publicaciones.usuario', 'Usuarios')
+                    .where("Publicaciones.id = :id", { id: req.params.idPublicacion })
+                    .getOne()];
+            case 1:
+                PUBLICACION = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
+        }
+    });
+}); };
+exports.getPublicacionDetalle = getPublicacionDetalle;
