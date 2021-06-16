@@ -320,11 +320,12 @@ export const getConversacion = async (req: Request, res: Response): Promise<Resp
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
     const MENSAJES = await getRepository(Mensajes)
         .createQueryBuilder("Mensajes")
+        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
         .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
         .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
         .andWhere("Mensajes.usuarioEmisor = :id", { id: req.params.receptor })
         .orWhere("Mensajes.usuarioReceptor = :id", { id: req.params.receptor })
-        .orderBy("Mensajes.id", "DESC")
+        .orderBy("Mensajes.id", "ASC")
         .getMany();
 
     return res.json(MENSAJES);

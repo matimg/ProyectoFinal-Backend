@@ -535,11 +535,12 @@ var getConversacion = function (req, res) { return __awaiter(void 0, void 0, voi
                 usuario_id = req.user.USUARIO.id;
                 return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
                         .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
                         .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
                         .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
                         .andWhere("Mensajes.usuarioEmisor = :id", { id: req.params.receptor })
                         .orWhere("Mensajes.usuarioReceptor = :id", { id: req.params.receptor })
-                        .orderBy("Mensajes.id", "DESC")
+                        .orderBy("Mensajes.id", "ASC")
                         .getMany()];
             case 1:
                 MENSAJES = _a.sent();
