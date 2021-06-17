@@ -1,3 +1,4 @@
 node_modules
 .gitpod copy.yml
 .adminbro
+.env
