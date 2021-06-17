@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.getPublicacionDetalle = exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.getPublicacionDetalle = exports.getUsuariosEmisores = exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
@@ -525,8 +525,7 @@ var enviarMensaje = function (req, res) { return __awaiter(void 0, void 0, void 
     });
 }); };
 exports.enviarMensaje = enviarMensaje;
-//TRAER CONVERSACION
-//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+//OBTIENE TODOS LOS MENSAJES DE UNA CONVERSACION
 var getConversacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var usuario_id, MENSAJES;
     return __generator(this, function (_a) {
@@ -549,6 +548,47 @@ var getConversacion = function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); };
 exports.getConversacion = getConversacion;
+//OBTIENE TODOS LOS EMISORES DE UN RECEPTOR
+var getUsuariosEmisores = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, MENSAJESEMISOR, MENSAJESRECEPTOR, arrayMensajes, i, mensaje;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
+                        .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
+                        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+                        .orderBy("Mensajes.id", "DESC")
+                        .getMany()];
+            case 1:
+                MENSAJESEMISOR = _a.sent();
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
+                        .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioReceptor', 'Usuarios')
+                        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+                        .orderBy("Mensajes.id", "DESC")
+                        .getMany()];
+            case 2:
+                MENSAJESRECEPTOR = _a.sent();
+                arrayMensajes = [];
+                for (i = 0; i < MENSAJESEMISOR.length; i++) {
+                    mensaje = { id: 0, mensaje: "", emisor: "", idEmisor: 0, receptor: "", idReceptor: 0 };
+                    mensaje.id = MENSAJESEMISOR[i].id;
+                    mensaje.mensaje = MENSAJESEMISOR[i].mensaje;
+                    mensaje.emisor = MENSAJESEMISOR[i].usuarioEmisor.nombre;
+                    mensaje.idEmisor = MENSAJESEMISOR[i].usuarioEmisor.id;
+                    mensaje.receptor = MENSAJESRECEPTOR[i].usuarioReceptor.nombre;
+                    mensaje.idReceptor = MENSAJESRECEPTOR[i].usuarioReceptor.id;
+                    arrayMensajes[i] = mensaje;
+                }
+                return [2 /*return*/, res.json(arrayMensajes)];
+        }
+    });
+}); };
+exports.getUsuariosEmisores = getUsuariosEmisores;
 //OBTIENE TODAS LA INFORMACION DE UNA PUBLICACION
 var getPublicacionDetalle = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var PUBLICACION;

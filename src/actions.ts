@@ -313,8 +313,7 @@ export const enviarMensaje = async (req: Request, res: Response): Promise<Respon
     return res.json({ message: "Ok", mensaje: results });
 }
 
-//TRAER CONVERSACION
-//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+//OBTIENE TODOS LOS MENSAJES DE UNA CONVERSACION
 export const getConversacion = async (req: Request, res: Response): Promise<Response> => {
     //Obtengo id del usuario desde el token
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
@@ -330,6 +329,39 @@ export const getConversacion = async (req: Request, res: Response): Promise<Resp
 
     return res.json(MENSAJES);
 }
+
+//OBTIENE TODOS LOS EMISORES DE UN RECEPTOR
+export const getUsuariosEmisores = async (req: Request, res: Response): Promise<Response> => {
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const MENSAJESEMISOR = await getRepository(Mensajes)
+        .createQueryBuilder("Mensajes")
+        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
+        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+        .orderBy("Mensajes.id", "DESC")
+        .getMany();
+    const MENSAJESRECEPTOR = await getRepository(Mensajes)
+            .createQueryBuilder("Mensajes")
+            .leftJoinAndSelect('Mensajes.usuarioReceptor', 'Usuarios')
+            .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+            .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+            .orderBy("Mensajes.id", "DESC")
+            .getMany();
+    let arrayMensajes = [];       
+    for(let i=0; i<MENSAJESEMISOR.length; i++){
+        let mensaje = {id:0, mensaje:"", emisor:"", idEmisor:0, receptor:"", idReceptor:0} 
+        mensaje.id = MENSAJESEMISOR[i].id;
+        mensaje.mensaje = MENSAJESEMISOR[i].mensaje;
+        mensaje.emisor = MENSAJESEMISOR[i].usuarioEmisor.nombre;
+        mensaje.idEmisor = MENSAJESEMISOR[i].usuarioEmisor.id;
+        mensaje.receptor = MENSAJESRECEPTOR[i].usuarioReceptor.nombre;
+        mensaje.idReceptor = MENSAJESRECEPTOR[i].usuarioReceptor.id;
+        arrayMensajes[i] = mensaje;
+
+    }        
+    return res.json(arrayMensajes);
+}
 //OBTIENE TODAS LA INFORMACION DE UNA PUBLICACION
 export const getPublicacionDetalle = async (req: Request, res: Response): Promise<Response> => {
     const PUBLICACION = await getRepository(Publicaciones)
@@ -337,6 +369,6 @@ export const getPublicacionDetalle = async (req: Request, res: Response): Promis
         .leftJoinAndSelect('Publicaciones.usuario', 'Usuarios')
         .where("Publicaciones.id = :id", { id: req.params.idPublicacion })
         .getOne();
-    return res.json({message: "Ok", publicacion: PUBLICACION});
+    return res.json({ message: "Ok", publicacion: PUBLICACION });
 }
 
