@@ -56,5 +56,7 @@ router.get('/mensajes/:receptor',verifyToken, safe(actions.getConversacion));
 router.get('/publicaciones/:categoria',verifyToken, safe(actions.getPublicacionesFiltro));
 //LISTA DETALLE DE UNA PUBLICACION
 router.get('/publicacion/detalle/:idPublicacion',verifyToken, safe(actions.getPublicacionDetalle));
+//LISTA EMISORES DE UN RECEPTOR LOGUEADO
+router.get('/casilla',verifyToken, safe(actions.getUsuariosEmisores));
 
 export default router;

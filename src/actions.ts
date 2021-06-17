@@ -313,8 +313,7 @@ export const enviarMensaje = async (req: Request, res: Response): Promise<Respon
     return res.json({ message: "Ok", mensaje: results });
 }
 
-//TRAER CONVERSACION
-//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+//OBTIENE TODOS LOS MENSAJES DE UNA CONVERSACION
 export const getConversacion = async (req: Request, res: Response): Promise<Response> => {
     //Obtengo id del usuario desde el token
     const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
@@ -325,6 +324,20 @@ export const getConversacion = async (req: Request, res: Response): Promise<Resp
         .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
         .andWhere("Mensajes.usuarioEmisor = :id", { id: req.params.receptor })
         .orWhere("Mensajes.usuarioReceptor = :id", { id: req.params.receptor })
+        .orderBy("Mensajes.id", "ASC")
+        .getMany();
+
+    return res.json(MENSAJES);
+}
+
+//OBTIENE TODOS LOS EMISORES DE UN RECEPTOR
+export const getUsuariosEmisores = async (req: Request, res: Response): Promise<Response> => {
+    //Obtengo id del usuario desde el token
+    const usuario_id = (req.user as ObjectLiteral).USUARIO.id;
+    const MENSAJES = await getRepository(Mensajes)
+        .createQueryBuilder("Mensajes")
+        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
+        .where("Mensajes.usuarioReceptor = :id", { id: usuario_id })
         .orderBy("Mensajes.id", "ASC")
         .getMany();
 
