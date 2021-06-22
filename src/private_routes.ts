@@ -23,14 +23,40 @@ const router = Router();
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     //headers con el token
     const token = req.header('Authorization');
-    if (!token) return res.status(400).json({ 'message': 'ACCESS DENIED' });
+    if (!token) return res.status(400).json({ 'message': 'ACCESO DENEGADO' });
 
     const decoded = jwt.verify(token as string, process.env.JWT_KEY as string);
     req.user = decoded;
 
     next();
 }
-
-// router.get('/user', safe(actions.getUsers));
+//MODIFICA PERFIL DE UN USUARIO
+router.put('/usuarios/',verifyToken, safe(actions.updatePerfil));
+//LISTA PUBLICACIONES DE UN USUARIO
+router.get('/usuarios/publicaciones',verifyToken, safe(actions.getPublicacionesUsuario));
+//LISTA PUBLICACIONES DE TODOS LOS USUARIO
+router.get('/allPublicaciones/:offset',verifyToken, safe(actions.getAllPublicaciones));
+//PUBLICAR
+router.post('/usuarios/publicaciones',verifyToken, safe(actions.crearPublicacion));
+//MODIFICA UNA PUBLICACION DE UN USUARIO
+router.put('/usuarios/publicaciones/:id',verifyToken, safe(actions.updatePublicacion));
+//ELIMINA UNA PUBLICACION DE UN USUARIO
+router.delete('/usuarios/publicaciones/:id',verifyToken, safe(actions.deletePublicacion));
+//AGREGAR FAVORITO
+router.post('/favorito',verifyToken, safe(actions.agregarFavorito));
+//LISTA FAVORITOS DE UN USUARIO
+router.get('/favoritos',verifyToken, safe(actions.getFavoritosUsuario));
+//ELIMINA UNA PUBLICACION DE UN USUARIO
+router.delete('/favorito/:id',verifyToken, safe(actions.deleteFavorito));
+//ENVIA MENSAJE
+router.post('/mensaje',verifyToken, safe(actions.enviarMensaje));
+//LISTA CONVERSACION DE UNA PERSONA A OTRA PERSONA
+router.get('/mensajes/:receptor',verifyToken, safe(actions.getConversacion));
+//LISTA CONVERSACION DE UNA PERSONA A OTRA PERSONA
+router.get('/publicaciones/:categoria',verifyToken, safe(actions.getPublicacionesFiltro));
+//LISTA DETALLE DE UNA PUBLICACION
+router.get('/publicacion/detalle/:idPublicacion',verifyToken, safe(actions.getPublicacionDetalle));
+//LISTA EMISORES DE UN RECEPTOR LOGUEADO
+router.get('/casilla',verifyToken, safe(actions.getUsuariosEmisores));
 
 export default router;

@@ -41,7 +41,9 @@ router.post('/registro', utils_1.safe(actions.crearUsuario));
 router.get('/usuarios', utils_1.safe(actions.getUSuarios));
 router.post('/email', utils_1.safe(controlador_1.enviarMail));
 //ACTIVA UN USUARIO
-router.put('/verificar/:email', utils_1.safe(actions.updateUsuario));
+router.put('/verificar/:id', utils_1.safe(actions.updateUsuario));
+//ELIMINA UN USUARIO
+router["delete"]('/usuarios/:id', utils_1.safe(actions.deleteUsuario));
 // RECUPERAR PASSWORD
 router.put('/recuperar', utils_1.safe(actions.recuperarPassword));
 exports["default"] = router;

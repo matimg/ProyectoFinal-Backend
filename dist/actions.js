@@ -39,12 +39,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.recuperarPassword = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
+exports.getPublicacionDetalle = exports.getUsuariosEmisores = exports.getConversacion = exports.enviarMensaje = exports.deleteFavorito = exports.getFavoritosUsuario = exports.agregarFavorito = exports.deletePublicacion = exports.updatePublicacion = exports.getPublicacionesFiltro = exports.getAllPublicaciones = exports.getPublicacionesUsuario = exports.crearPublicacion = exports.updatePerfil = exports.recuperarPassword = exports.deleteUsuario = exports.updateUsuario = exports.getUSuarios = exports.crearUsuario = exports.login = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var Usuarios_1 = require("./entities/Usuarios");
 var utils_1 = require("./utils");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var controlador_1 = require("./email/controlador");
+var Publicaciones_1 = require("./entities/Publicaciones");
+var Favoritos_1 = require("./entities/Favoritos");
+var Mensajes_1 = require("./entities/Mensajes");
 var bcrypt = require('bcrypt');
 //LOGIN- DEVUELVE UN TOKEN DE AUTORIZACION AL USUARIO
 var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -65,7 +68,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 if (!USUARIO)
                     throw new utils_1.Exception("El email o la contraseña es inválida", 401);
                 if (!USUARIO.activo)
-                    throw new utils_1.Exception("EL usuario todavia no esta activo");
+                    throw new utils_1.Exception("El usuario todavia no esta activo");
                 token = '';
                 return [4 /*yield*/, bcrypt.compare(req.body.password, USUARIO.password)];
             case 3:
@@ -73,7 +76,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 validacionPassword ? token = jsonwebtoken_1["default"].sign({ USUARIO: USUARIO }, process.env.JWT_KEY) : token = 'Invalid password';
                 if (token === 'Invalid password')
                     throw new utils_1.Exception("Contraseña incorrecta");
-                return [2 /*return*/, res.json({ USUARIO: USUARIO, token: token })];
+                return [2 /*return*/, res.json({ message: "Ok", token: token, usuario: USUARIO })];
         }
     });
 }); };
@@ -129,13 +132,13 @@ var crearUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0
                                     return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(nuevoUsuario)];
                                 case 1:
                                     results = _a.sent();
-                                    controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', ''); //Envía email de confirmacion
+                                    controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Verificar usuario', '', results.id); //Envía email de confirmacion
                                     return [2 /*return*/];
                             }
                         });
                     }); });
                 });
-                return [2 /*return*/, res.json("Usuario registrado")];
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
@@ -152,11 +155,12 @@ var getUSuarios = function (req, res) { return __awaiter(void 0, void 0, void 0,
     });
 }); };
 exports.getUSuarios = getUSuarios;
+//ACTIVA AL USUARIO
 var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var USUARIO;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { email: req.params.email } })];
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { id: req.params.id } })];
             case 1:
                 USUARIO = _a.sent();
                 if (!USUARIO)
@@ -166,11 +170,32 @@ var updateUsuario = function (req, res) { return __awaiter(void 0, void 0, void 
             case 2:
                 _a.sent();
                 console.log(USUARIO);
-                return [2 /*return*/, res.json(USUARIO)];
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
 exports.updateUsuario = updateUsuario;
+//BORRA USUARIO
+var deleteUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuarioRepo, USUARIO, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuarioRepo = typeorm_1.getRepository(Usuarios_1.Usuarios);
+                return [4 /*yield*/, usuarioRepo.findOne({ where: { id: req.params.id } })];
+            case 1:
+                USUARIO = _a.sent();
+                if (!USUARIO)
+                    throw new utils_1.Exception("El usuario no existe");
+                return [4 /*yield*/, usuarioRepo["delete"](USUARIO)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
+        }
+    });
+}); };
+exports.deleteUsuario = deleteUsuario;
+//ENVÍA EMAIL CON UNA NUEVA CONTRASEÑA RANDOM
 var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var USUARIO, random;
     return __generator(this, function (_a) {
@@ -206,10 +231,378 @@ var recuperarPassword = function (req, res) { return __awaiter(void 0, void 0, v
                         });
                     }); });
                 });
-                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random);
-                console.log(USUARIO);
-                return [2 /*return*/, res.json(USUARIO)];
+                controlador_1.enviarMail(USUARIO.email, USUARIO.nombre, 'Recuperar contraseña', random, USUARIO.id);
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
         }
     });
 }); };
 exports.recuperarPassword = recuperarPassword;
+//MODIFICA DATOS DEL PERFIL USUARIO
+var updatePerfil = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, USUARIO;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!req.body.nombre)
+                    throw new utils_1.Exception("Por favor ingrese su nombre");
+                if (!req.body.apellido)
+                    throw new utils_1.Exception("Por favor ingrese su apellido");
+                if (!req.body.password)
+                    throw new utils_1.Exception("Por favor ingrese su contraseña");
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).findOne({ where: { id: usuario_id } })];
+            case 1:
+                USUARIO = _a.sent();
+                if (!USUARIO)
+                    throw new utils_1.Exception("Este usuario no existe");
+                USUARIO.nombre = req.body.nombre;
+                USUARIO.apellido = req.body.apellido;
+                if (req.body.password != "") {
+                    bcrypt.genSalt(10, function (err, salt) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        bcrypt.hash(req.body.password, salt, function (err, hash) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (err) {
+                                            console.log(err);
+                                        }
+                                        //GUARDAR EN BASE DE DATOS
+                                        USUARIO.password = hash;
+                                        return [4 /*yield*/, typeorm_1.getRepository(Usuarios_1.Usuarios).save(USUARIO)];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                    });
+                }
+                return [2 /*return*/, res.json({ message: "Ok", usuario: USUARIO })];
+        }
+    });
+}); };
+exports.updatePerfil = updatePerfil;
+//CREA UNA PUBLICACION
+var crearPublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, PUBLICACION, nuevaPublicacion, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                //Valida campos del body
+                if (!req.body.titulo)
+                    throw new utils_1.Exception("Por favor ingrese un título");
+                if (!req.body.descripcion)
+                    throw new utils_1.Exception("Por favor ingrese una descripción");
+                if (!req.body.url)
+                    throw new utils_1.Exception("Por favor ingrese una imagen");
+                if (!req.body.categoria)
+                    throw new utils_1.Exception("Por favor ingrese una categoría");
+                if (!req.body.formato)
+                    throw new utils_1.Exception("Por favor ingrese un formato");
+                usuario_id = req.user.USUARIO.id;
+                PUBLICACION = new Publicaciones_1.Publicaciones();
+                PUBLICACION.titulo = req.body.titulo;
+                PUBLICACION.descripcion = req.body.descripcion;
+                PUBLICACION.url = req.body.url;
+                PUBLICACION.categoria = req.body.categoria;
+                PUBLICACION.formato = req.body.formato;
+                PUBLICACION.usuario = usuario_id; //Relaciono al usuario logueado
+                nuevaPublicacion = typeorm_1.getRepository(Publicaciones_1.Publicaciones).create(PUBLICACION);
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).save(nuevaPublicacion)];
+            case 1:
+                results = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
+        }
+    });
+}); };
+exports.crearPublicacion = crearPublicacion;
+//OBTIENE TODAS LAS PUBLICACIONES DE UN USUARIO
+var getPublicacionesUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, PUBLICACIONES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                        .createQueryBuilder("Publicaciones")
+                        .where("Publicaciones.usuario = :id", { id: usuario_id })
+                        .orderBy("id", "DESC")
+                        .getMany()];
+            case 1:
+                PUBLICACIONES = _a.sent();
+                console.log(PUBLICACIONES);
+                return [2 /*return*/, res.json(PUBLICACIONES)];
+        }
+    });
+}); };
+exports.getPublicacionesUsuario = getPublicacionesUsuario;
+//OBTIENE TODAS LAS PUBLICACIONES DE TODOS LOS USUARIOS
+var getAllPublicaciones = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var OFFSET, PUBLICACIONES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!req.params.offset)
+                    throw new utils_1.Exception("Por favor ingrese un offset");
+                OFFSET = parseInt(req.params.offset);
+                if (OFFSET > 0) {
+                    OFFSET *= 15;
+                }
+                console.log(OFFSET);
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                        .createQueryBuilder("Publicaciones")
+                        .limit(15)
+                        .offset(OFFSET)
+                        .orderBy("id", "DESC")
+                        .getMany()];
+            case 1:
+                PUBLICACIONES = _a.sent();
+                return [2 /*return*/, res.json(PUBLICACIONES)];
+        }
+    });
+}); };
+exports.getAllPublicaciones = getAllPublicaciones;
+//OBTIENE TODAS LAS PUBLICACIONES FILTRADAS POR EL CAMPO
+var getPublicacionesFiltro = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var PUBLICACIONES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                    .createQueryBuilder("Publicaciones")
+                    .where("Publicaciones.categoria = :categoria", { categoria: req.params.categoria })
+                    .orderBy("id", "DESC")
+                    .getMany()];
+            case 1:
+                PUBLICACIONES = _a.sent();
+                return [2 /*return*/, res.json(PUBLICACIONES)];
+        }
+    });
+}); };
+exports.getPublicacionesFiltro = getPublicacionesFiltro;
+//MODIFICA PUBLICACION DE UN USUARIO
+var updatePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, PUBLICACION;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                //Valida campos del body
+                if (!req.body.titulo)
+                    throw new utils_1.Exception("Por favor ingrese un título");
+                if (!req.body.descripcion)
+                    throw new utils_1.Exception("Por favor ingrese una descripción");
+                if (!req.body.url)
+                    throw new utils_1.Exception("Por favor ingrese una imagen");
+                if (!req.body.formato)
+                    throw new utils_1.Exception("Por favor ingrese un formato");
+                if (!req.body.categoria)
+                    throw new utils_1.Exception("Por favor ingrese una categoría");
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                PUBLICACION = _a.sent();
+                if (!PUBLICACION)
+                    throw new utils_1.Exception("Esta publicación no existe");
+                PUBLICACION.titulo = req.body.titulo;
+                PUBLICACION.descripcion = req.body.descripcion;
+                PUBLICACION.url = req.body.url;
+                PUBLICACION.categoria = req.body.categoria;
+                PUBLICACION.formato = req.body.formato;
+                return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones).save(PUBLICACION)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
+        }
+    });
+}); };
+exports.updatePublicacion = updatePublicacion;
+//BORRA PUBLICACION DE UN USUARIO
+var deletePublicacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, publicacionRepo, PUBLICACION, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                publicacionRepo = typeorm_1.getRepository(Publicaciones_1.Publicaciones);
+                return [4 /*yield*/, publicacionRepo.findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                PUBLICACION = _a.sent();
+                if (!PUBLICACION)
+                    throw new utils_1.Exception("La publicación no existe");
+                return [4 /*yield*/, publicacionRepo["delete"](PUBLICACION)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
+        }
+    });
+}); };
+exports.deletePublicacion = deletePublicacion;
+//AGREGAR FAVORITO
+var agregarFavorito = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, FAVORITO, nuevoFavorito, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                //Valida campos del body
+                if (!req.body.idPublicacion)
+                    throw new utils_1.Exception("Por favor ingrese una publicación");
+                usuario_id = req.user.USUARIO.id;
+                FAVORITO = new Favoritos_1.Favoritos();
+                FAVORITO.usuario = usuario_id;
+                FAVORITO.publicaciones = req.body.idPublicacion;
+                nuevoFavorito = typeorm_1.getRepository(Favoritos_1.Favoritos).create(FAVORITO);
+                return [4 /*yield*/, typeorm_1.getRepository(Favoritos_1.Favoritos).save(nuevoFavorito)];
+            case 1:
+                results = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", favorito: results })];
+        }
+    });
+}); };
+exports.agregarFavorito = agregarFavorito;
+//OBTIENE TODOS LOS FAVORITOS DE UN USUARIO
+var getFavoritosUsuario = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, FAVORITOS;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Favoritos_1.Favoritos)
+                        .createQueryBuilder("Favoritos")
+                        .leftJoinAndSelect('Favoritos.publicaciones', 'Publicaciones')
+                        .where("Favoritos.usuario = :id", { id: usuario_id })
+                        .orderBy("Favoritos.id", "DESC")
+                        .getMany()];
+            case 1:
+                FAVORITOS = _a.sent();
+                console.log(FAVORITOS);
+                return [2 /*return*/, res.json(FAVORITOS)];
+        }
+    });
+}); };
+exports.getFavoritosUsuario = getFavoritosUsuario;
+//BORRA FAVORITO DE UN USUARIO
+var deleteFavorito = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, favoritoRepo, FAVORITO, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                favoritoRepo = typeorm_1.getRepository(Favoritos_1.Favoritos);
+                return [4 /*yield*/, favoritoRepo.findOne({ where: { id: req.params.id, usuario: usuario_id } })];
+            case 1:
+                FAVORITO = _a.sent();
+                if (!FAVORITO)
+                    throw new utils_1.Exception("El favorito no existe");
+                return [4 /*yield*/, favoritoRepo["delete"](FAVORITO)];
+            case 2:
+                result = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", result: result })];
+        }
+    });
+}); };
+exports.deleteFavorito = deleteFavorito;
+//ENVIAR MENSAJE
+var enviarMensaje = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var emisor_id, MENSAJE, nuevoMensaje, results;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                emisor_id = req.user.USUARIO.id;
+                MENSAJE = new Mensajes_1.Mensajes();
+                MENSAJE.usuarioEmisor = emisor_id.toString();
+                MENSAJE.usuarioReceptor = req.body.receptor;
+                MENSAJE.asunto = req.body.asunto;
+                MENSAJE.mensaje = req.body.mensaje;
+                console.log(MENSAJE);
+                nuevoMensaje = typeorm_1.getRepository(Mensajes_1.Mensajes).create(MENSAJE);
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes).save(nuevoMensaje)];
+            case 1:
+                results = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", mensaje: results })];
+        }
+    });
+}); };
+exports.enviarMensaje = enviarMensaje;
+//OBTIENE TODOS LOS MENSAJES DE UNA CONVERSACION
+var getConversacion = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, MENSAJES;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
+                        .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
+                        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+                        .andWhere("Mensajes.usuarioEmisor = :id", { id: req.params.receptor })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: req.params.receptor })
+                        .orderBy("Mensajes.id", "ASC")
+                        .getMany()];
+            case 1:
+                MENSAJES = _a.sent();
+                return [2 /*return*/, res.json(MENSAJES)];
+        }
+    });
+}); };
+exports.getConversacion = getConversacion;
+//OBTIENE TODOS LOS EMISORES DE UN RECEPTOR
+var getUsuariosEmisores = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var usuario_id, MENSAJESEMISOR, MENSAJESRECEPTOR, arrayMensajes, i, mensaje;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                usuario_id = req.user.USUARIO.id;
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
+                        .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioEmisor', 'Usuarios')
+                        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+                        .orderBy("Mensajes.id", "DESC")
+                        .getMany()];
+            case 1:
+                MENSAJESEMISOR = _a.sent();
+                return [4 /*yield*/, typeorm_1.getRepository(Mensajes_1.Mensajes)
+                        .createQueryBuilder("Mensajes")
+                        .leftJoinAndSelect('Mensajes.usuarioReceptor', 'Usuarios')
+                        .where("Mensajes.usuarioEmisor = :id", { id: usuario_id })
+                        .orWhere("Mensajes.usuarioReceptor = :id", { id: usuario_id })
+                        .orderBy("Mensajes.id", "DESC")
+                        .getMany()];
+            case 2:
+                MENSAJESRECEPTOR = _a.sent();
+                arrayMensajes = [];
+                for (i = 0; i < MENSAJESEMISOR.length; i++) {
+                    mensaje = { id: 0, mensaje: "", emisor: "", idEmisor: 0, receptor: "", idReceptor: 0 };
+                    mensaje.id = MENSAJESEMISOR[i].id;
+                    mensaje.mensaje = MENSAJESEMISOR[i].mensaje;
+                    mensaje.emisor = MENSAJESEMISOR[i].usuarioEmisor.nombre;
+                    mensaje.idEmisor = MENSAJESEMISOR[i].usuarioEmisor.id;
+                    mensaje.receptor = MENSAJESRECEPTOR[i].usuarioReceptor.nombre;
+                    mensaje.idReceptor = MENSAJESRECEPTOR[i].usuarioReceptor.id;
+                    arrayMensajes[i] = mensaje;
+                }
+                return [2 /*return*/, res.json(arrayMensajes)];
+        }
+    });
+}); };
+exports.getUsuariosEmisores = getUsuariosEmisores;
+//OBTIENE TODAS LA INFORMACION DE UNA PUBLICACION
+var getPublicacionDetalle = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var PUBLICACION;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(Publicaciones_1.Publicaciones)
+                    .createQueryBuilder("Publicaciones")
+                    .leftJoinAndSelect('Publicaciones.usuario', 'Usuarios')
+                    .where("Publicaciones.id = :id", { id: req.params.idPublicacion })
+                    .getOne()];
+            case 1:
+                PUBLICACION = _a.sent();
+                return [2 /*return*/, res.json({ message: "Ok", publicacion: PUBLICACION })];
+        }
+    });
+}); };
+exports.getPublicacionDetalle = getPublicacionDetalle;

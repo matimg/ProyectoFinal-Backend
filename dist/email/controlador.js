@@ -37,15 +37,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.enviarMail = void 0;
-var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0, void 0, void 0, function () {
+var enviarMail = function (email, nombre, tipo, pass, id) { return __awaiter(void 0, void 0, void 0, function () {
     var plantilla, link, nodemailer, handlebars, fs, readHTMLFile, transporter;
     return __generator(this, function (_a) {
+        console.log(id);
         plantilla = '';
         link = '';
         switch (tipo) {
             case 'Verificar usuario':
                 plantilla = 'verificacion.html';
-                link = 'verificacion/' + email;
+                link = '/verificacion/' + id;
                 break;
             case 'Recuperar contraseña':
                 plantilla = 'recuperacion.html';
@@ -80,7 +81,7 @@ var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0,
             var replacements = {
                 nombre: nombre,
                 email: email,
-                verificar: process.env.URL + link,
+                verificar: process.env.URL_FRONT + link,
                 password: pass
             };
             var htmlToSend = template(replacements);
@@ -88,7 +89,7 @@ var enviarMail = function (email, nombre, tipo, pass) { return __awaiter(void 0,
             var mailOptions = {
                 from: process.env.USUARIO,
                 to: email,
-                subject: 'Verificar Cuenta',
+                subject: tipo,
                 html: htmlToSend
             };
             transporter.sendMail(mailOptions, function (error, response) {

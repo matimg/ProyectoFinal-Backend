@@ -23,6 +23,9 @@ export class Publicaciones extends BaseEntity {
     @Column()
     categoria: string;
 
+    @Column()
+    formato: string;
+
     @ManyToOne(() => Usuarios, usuario => usuario.id, { nullable: false })
     usuario: Usuarios;
 
